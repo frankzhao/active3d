@@ -16,8 +16,8 @@ using namespace std;
 int mouseX1 = 0, mouseY1 = 0, mouseX2 = 0, mouseY2 = 0;
 bool drag = false;
 
-Mat img, imgWorkingCopy;
-Mat mask, fgMask, fgModel, bgModel;
+Mat img, imgWorkingCopy, viewport;
+Mat mask, refineMask, fgMask, fgModel, bgModel;
 Rect rect;
 
 // Mouse event handler for mask painting
@@ -28,8 +28,8 @@ static void mousePaintEvent(int event, int x, int y, int, void*) {
             mouseX1 = x;
             mouseY1 = y;
             drag = !drag;
-            circle(imgWorkingCopy, Point (x,y), 3, Scalar(100,100,100));
-            circle(mask, Point (x,y), 3, Scalar(0));
+            circle(viewport, Point (x,y), brushRadius, Scalar(150,150,150), -brushRadius);
+            circle(refineMask, Point (x,y), brushRadius, GC_BGD, -brushRadius);
             break;
         case CV_EVENT_LBUTTONUP:
             mouseX2 = x;
@@ -37,9 +37,10 @@ static void mousePaintEvent(int event, int x, int y, int, void*) {
             drag = !drag;
         case CV_EVENT_MOUSEMOVE:
             if (drag) {
-                circle(imgWorkingCopy, Point(x,y), brushRadius, Scalar(150,150,150), -brushRadius);
-                circle(fgMask, Point(x,y), 10, Scalar(0), -brushRadius);
-                imshow("Viewer", imgWorkingCopy);
+                circle(viewport, Point(x,y), brushRadius, Scalar(150,150,150), -brushRadius);
+                circle(refineMask, Point(x,y), brushRadius, GC_BGD, -brushRadius);
+                imshow("Viewer", viewport);
+
             }
         default:
             break;
@@ -53,14 +54,14 @@ static void interactiveGrabCut() {
     //printf("%d, %d\n", rows, cols);
     
     // initialise algorithm arrays with zeros
-    mask = Mat(rows, cols, CV_32FC1, double(0));
+    mask = Mat(rows, cols, CV_8UC1, double(0));
     fgModel = Mat(1, 65, CV_64FC1, double(0));
     bgModel = Mat(1, 65, CV_64FC1, double(0));
     
-    // check that the area of the selected rectangle is > 0
-    if ( abs((mouseX1 - mouseX2) * (mouseY2 - mouseY1)) > 0 ) {
+    // check that the area of the selected rectangle is > 0 and less than total image area
+    int rectArea = abs((mouseX1 - mouseX2) * (mouseY2 - mouseY1)) > 0;
+    if ( rectArea > 0 && rectArea < (img.cols * img.rows) ) {
         
-        // TODO error when rectangle is the same size as image
         rect = Rect( Point(mouseX1, mouseY1), Point (mouseX2, mouseY2) );
         
         
@@ -82,17 +83,26 @@ static void interactiveGrabCut() {
             }
         }
         
-        img.convertTo(img, CV_32FC3); // gemm needs float matrix
+        imgWorkingCopy = img.clone();
+        imgWorkingCopy.convertTo(imgWorkingCopy, CV_32FC3); // gemm needs float matrix
         
         cvtColor(fgMask, fgMask, CV_GRAY2BGR); // convert from 8-bit single channel mask to 3 channel
         fgMask.convertTo(fgMask, CV_32FC3);
-        img = img.mul(fgMask);
-        img.convertTo(img, CV_8UC3);
+        imgWorkingCopy = imgWorkingCopy.mul(fgMask);
+        imgWorkingCopy.convertTo(imgWorkingCopy, CV_8UC3);
 
-        imgWorkingCopy = img.clone();
-        rectangle(imgWorkingCopy, rect, Scalar(0,0,255));
+        viewport = imgWorkingCopy.clone();
+        rectangle(viewport, rect, Scalar(0,0,255));
         
-        imshow("Viewer", imgWorkingCopy);
+        imshow("Viewer", viewport);
+        
+        // convert mask back to single channel for next iteration
+        cvtColor(fgMask, fgMask, CV_BGR2GRAY);
+        fgMask.convertTo(fgMask, CV_8UC1);
+        
+        // initalise mat for refine mask as all FG
+        refineMask = Mat(rows, cols, CV_8UC1, GC_FGD);
+        
         setMouseCallback("Viewer", mousePaintEvent);
     }
 }
@@ -114,9 +124,9 @@ static void mouseRectangleEvent(int event, int x, int y, int, void*) {
             interactiveGrabCut(); // run grabcut
         case CV_EVENT_MOUSEMOVE:
             if (drag) {
-                imgWorkingCopy = img.clone();
-                rectangle(imgWorkingCopy, Point(mouseX1, mouseY1), Point(x, y), Scalar(0,255,0));
-                imshow("Viewer", imgWorkingCopy);
+                viewport = img.clone();
+                rectangle(viewport, Point(mouseX1, mouseY1), Point(x, y), Scalar(0,255,0));
+                imshow("Viewer", viewport);
             }
         default:
             break;
@@ -142,27 +152,52 @@ int main(int argc, const char * argv[])
     while (1) {
         k = waitKey();
         if (k == 13) { // wait for enter key
-            cvtColor(fgMask, fgMask, CV_BGR2GRAY);
-            fgMask.convertTo(fgMask, CV_8UC1);
-            grabCut(img, fgMask, rect, bgModel, fgModel, 15, GC_INIT_WITH_MASK); // grabcut with new mask
+            
+//            refineMask.convertTo(refineMask, CV_8UC1, 255);
+//            imshow("Viewer", refineMask);
+//            
+//            waitKey();
+            
+            // apply refined mask to first mask
+            for (int i=0; i<img.rows; i++) {
+                for (int j=0; j<img.cols; j++) {
+                    int v = refineMask.at<uchar>(i,j);
+                    if (v == GC_BGD) {
+                        fgMask.at<uchar>(i,j) = GC_BGD;
+                    }
+                }
+            }
+            
+            imgWorkingCopy = img.clone();
+            
+            grabCut(img, fgMask, Rect(), bgModel, fgModel, 5, GC_INIT_WITH_MASK); // grabcut with new mask
+            
             cvtColor(fgMask, fgMask, CV_GRAY2BGR);
+            
+//            fgMask.convertTo(fgMask, CV_8UC3, 255);
+//            imshow("Viewer", fgMask);
+//            waitKey();
+            
             fgMask.convertTo(fgMask, CV_32FC3); // multiplication requires 3-channel float
-            img.convertTo(img, CV_32FC3); // gemm needs float matrix
-            img = img.mul(fgMask);
-            img.convertTo(img, CV_8UC3);
+            imgWorkingCopy.convertTo(imgWorkingCopy, CV_32FC3); // gemm needs float matrix
+            imgWorkingCopy = imgWorkingCopy.mul(fgMask);
+            imgWorkingCopy.convertTo(imgWorkingCopy, CV_8UC3);
             break;
         }
     }
     
-    imshow("Viewer", img);
+    imshow("Viewer", imgWorkingCopy);
     
     waitKey(); // press any key to exit
     
     img.release();
     imgWorkingCopy.release();
     mask.release();
+    fgMask.release();
     fgModel.release();
     bgModel.release();
+    viewport.release();
+    refineMask.release();
     
     return 0;
 }
