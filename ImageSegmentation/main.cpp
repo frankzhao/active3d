@@ -43,7 +43,7 @@ int main(int argc, const char * argv[])
     grabCut(img, mask, rect, bgModel, fgModel, 5, GC_INIT_WITH_RECT);
     
     // 0, 2 -> bg pixels; 1, 3 -> fg pixels
-    Mat fgMask = img.clone();
+    Mat fgMask = mask.clone();
     
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
@@ -56,8 +56,11 @@ int main(int argc, const char * argv[])
         }
     }
     
+    Mat out = mask.clone();
+    
     img.convertTo(img, CV_32FC3); // gemm needs float matrix
-    // cvtColor(fgMask, frontMask, CV_GRAY2BGR); // convert from 1 channel mask to BW
+    
+    cvtColor(fgMask, fgMask, CV_GRAY2BGR); // convert from 8-bit single channel mask to 3 channel
     fgMask.convertTo(fgMask, CV_32FC3);
     img = img.mul(fgMask);
     img.convertTo(img, CV_8UC3);
