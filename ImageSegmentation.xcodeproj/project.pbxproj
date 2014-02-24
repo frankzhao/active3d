@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		01DD1FC718B9FC5200D12CF0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01DD1FC618B9FC5200D12CF0 /* main.cpp */; };
 		01DD1FC918B9FC5200D12CF0 /* ImageSegmentation.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 01DD1FC818B9FC5200D12CF0 /* ImageSegmentation.1 */; };
+		01DD1FE218BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 01DD1FE018BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib */; };
+		01DD1FE318BA1ADF00D12CF0 /* libopencv_highgui.2.4.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 01DD1FE118BA1ADF00D12CF0 /* libopencv_highgui.2.4.8.dylib */; };
+		01DD1FE718BA1BED00D12CF0 /* libopencv_imgproc.2.4.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 01DD1FE618BA1BED00D12CF0 /* libopencv_imgproc.2.4.8.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,6 +31,9 @@
 		01DD1FC318B9FC5200D12CF0 /* ImageSegmentation */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ImageSegmentation; sourceTree = BUILT_PRODUCTS_DIR; };
 		01DD1FC618B9FC5200D12CF0 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		01DD1FC818B9FC5200D12CF0 /* ImageSegmentation.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = ImageSegmentation.1; sourceTree = "<group>"; };
+		01DD1FE018BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_core.2.4.8.dylib; path = ../../../../../opt/local/lib/libopencv_core.2.4.8.dylib; sourceTree = "<group>"; };
+		01DD1FE118BA1ADF00D12CF0 /* libopencv_highgui.2.4.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_highgui.2.4.8.dylib; path = ../../../../../opt/local/lib/libopencv_highgui.2.4.8.dylib; sourceTree = "<group>"; };
+		01DD1FE618BA1BED00D12CF0 /* libopencv_imgproc.2.4.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgproc.2.4.8.dylib; path = ../../../../../opt/local/lib/libopencv_imgproc.2.4.8.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,6 +41,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01DD1FE718BA1BED00D12CF0 /* libopencv_imgproc.2.4.8.dylib in Frameworks */,
+				01DD1FE218BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib in Frameworks */,
+				01DD1FE318BA1ADF00D12CF0 /* libopencv_highgui.2.4.8.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -44,6 +53,9 @@
 		01DD1FBA18B9FC5200D12CF0 = {
 			isa = PBXGroup;
 			children = (
+				01DD1FE618BA1BED00D12CF0 /* libopencv_imgproc.2.4.8.dylib */,
+				01DD1FE018BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib */,
+				01DD1FE118BA1ADF00D12CF0 /* libopencv_highgui.2.4.8.dylib */,
 				01DD1FC518B9FC5200D12CF0 /* ImageSegmentation */,
 				01DD1FC418B9FC5200D12CF0 /* Products */,
 			);
@@ -195,14 +207,40 @@
 		01DD1FCD18B9FC5200D12CF0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LIBRARY = "libc++";
+				GCC_VERSION = "";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/opt/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
 		01DD1FCE18B9FC5200D12CF0 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LIBRARY = "libc++";
+				GCC_VERSION = "";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/opt/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};
