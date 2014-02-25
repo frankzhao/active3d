@@ -21,15 +21,15 @@ Mat mask, refineMask, fgMask, fgModel, bgModel;
 Rect rect;
 
 // Mouse event handler for mask painting
-int brushRadius = 10;
+int brushRadius = 20;
 static void mousePaintEvent(int event, int x, int y, int, void*) {
     switch (event) {
         case CV_EVENT_LBUTTONDOWN:
             mouseX1 = x;
             mouseY1 = y;
             drag = !drag;
-            circle(viewport, Point (x,y), brushRadius, Scalar(150,150,150), -brushRadius);
-            circle(refineMask, Point (x,y), brushRadius, GC_BGD, -brushRadius);
+            circle(viewport, Point (x,y), brushRadius, Scalar(150,150,150), -1);
+            circle(refineMask, Point (x,y), brushRadius, GC_BGD, -1);
             break;
         case CV_EVENT_LBUTTONUP:
             mouseX2 = x;
@@ -37,8 +37,8 @@ static void mousePaintEvent(int event, int x, int y, int, void*) {
             drag = !drag;
         case CV_EVENT_MOUSEMOVE:
             if (drag) {
-                circle(viewport, Point(x,y), brushRadius, Scalar(150,150,150), -brushRadius);
-                circle(refineMask, Point(x,y), brushRadius, GC_BGD, -brushRadius);
+                circle(viewport, Point(x,y), brushRadius, Scalar(150,150,150), -1);
+                circle(refineMask, Point(x,y), brushRadius, GC_BGD, -1);
                 imshow("Viewer", viewport);
 
             }
@@ -84,10 +84,10 @@ static void interactiveGrabCut() {
         }
         
         imgWorkingCopy = img.clone();
-        imgWorkingCopy.convertTo(imgWorkingCopy, CV_32FC3); // gemm needs float matrix
         
         cvtColor(fgMask, fgMask, CV_GRAY2BGR); // convert from 8-bit single channel mask to 3 channel
         fgMask.convertTo(fgMask, CV_32FC3);
+        imgWorkingCopy.convertTo(imgWorkingCopy, CV_32FC3); // gemm needs float matrix
         imgWorkingCopy = imgWorkingCopy.mul(fgMask);
         imgWorkingCopy.convertTo(imgWorkingCopy, CV_8UC3);
 
@@ -100,8 +100,8 @@ static void interactiveGrabCut() {
         cvtColor(fgMask, fgMask, CV_BGR2GRAY);
         fgMask.convertTo(fgMask, CV_8UC1);
         
-        // initalise mat for refine mask as all FG
-        refineMask = Mat(rows, cols, CV_8UC1, GC_FGD);
+        // initalise mat for refine mask as all white
+        refineMask = Mat(rows, cols, CV_8UC1, 255);
         
         setMouseCallback("Viewer", mousePaintEvent);
     }
@@ -163,24 +163,35 @@ int main(int argc, const char * argv[])
                 for (int j=0; j<img.cols; j++) {
                     int v = refineMask.at<uchar>(i,j);
                     if (v == GC_BGD) {
-                        fgMask.at<uchar>(i,j) = GC_BGD;
+                        mask.at<uchar>(i,j) = GC_BGD;
                     }
                 }
             }
             
             imgWorkingCopy = img.clone();
             
-            grabCut(img, fgMask, Rect(), bgModel, fgModel, 5, GC_INIT_WITH_MASK); // grabcut with new mask
+            grabCut(img, mask, Rect(), bgModel, fgModel, 5, GC_INIT_WITH_MASK); // grabcut with new mask
             
-            cvtColor(fgMask, fgMask, CV_GRAY2BGR);
+            for (int i=0; i<img.rows; i++) {
+                for (int j=0; j<img.cols; j++) {
+                    int v = mask.at<uchar>(i,j);
+                    if (v == 0 || v == 2) {
+                        mask.at<uchar>(i,j) = 0;
+                    } else if (v == 1 || v == 3) {
+                        mask.at<uchar>(i,j) = 1;
+                    }
+                }
+            }
+            
+            cvtColor(mask, mask, CV_GRAY2BGR);
             
 //            fgMask.convertTo(fgMask, CV_8UC3, 255);
 //            imshow("Viewer", fgMask);
 //            waitKey();
             
-            fgMask.convertTo(fgMask, CV_32FC3); // multiplication requires 3-channel float
+            mask.convertTo(mask, CV_32FC3); // multiplication requires 3-channel float
             imgWorkingCopy.convertTo(imgWorkingCopy, CV_32FC3); // gemm needs float matrix
-            imgWorkingCopy = imgWorkingCopy.mul(fgMask);
+            imgWorkingCopy = imgWorkingCopy.mul(mask);
             imgWorkingCopy.convertTo(imgWorkingCopy, CV_8UC3);
             break;
         }
