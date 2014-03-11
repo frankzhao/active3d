@@ -6,6 +6,9 @@
 //  Copyright (c) 2014 Frank Zhao. All rights reserved.
 //
 
+#define RECT_MASK 0
+#define REFINE_MASK 1
+
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <stdlib.h>
@@ -15,10 +18,13 @@ using namespace std;
 
 int mouseX1 = 0, mouseY1 = 0, mouseX2 = 0, mouseY2 = 0;
 bool drag = false;
+bool initiateGrabCut = false;
 
 Mat img, imgWorkingCopy, viewport;
 Mat mask, refineMask, fgMask, fgModel, bgModel;
 Rect rect;
+
+//void grabCut(InputArray img, InputOutputArray mask, Rect rect, InputOutputArray bgdModel, InputOutputArray fgdModel, int iterCount, int mode=GC_EVAL )
 
 // Mouse event handler for mask painting
 int brushRadius = 20;
@@ -47,21 +53,21 @@ static void mousePaintEvent(int event, int x, int y, int, void*) {
     }
 }
 
-static void interactiveGrabCut() {
+static int interactiveGrabCut(int mode) {
     int rows = img.rows;
     int cols = img.cols;
     
-    //printf("%d, %d\n", rows, cols);
+    if (mode == RECT_MASK) {
     
-    // initialise algorithm arrays with zeros
-    mask = Mat(rows, cols, CV_8UC1, double(0));
-    fgModel = Mat(1, 65, CV_64FC1, double(0));
-    bgModel = Mat(1, 65, CV_64FC1, double(0));
-    
-    // check that the area of the selected rectangle is > 0 and less than total image area
-    int rectArea = abs((mouseX1 - mouseX2) * (mouseY2 - mouseY1)) > 0;
-    if ( rectArea > 0 && rectArea < (img.cols * img.rows) ) {
+        // initialise algorithm arrays with zeros
+        mask = Mat(rows, cols, CV_8UC1, double(0));
+        fgModel = Mat(1, 65, CV_64FC1, double(0));
+        bgModel = Mat(1, 65, CV_64FC1, double(0));
         
+        // check that the area of the selected rectangle is > 0 and less than total image area
+        int rectArea = abs((mouseX1 - mouseX2) * (mouseY2 - mouseY1)) > 0;
+        assert(rectArea > 0 && rectArea < (img.cols * img.rows) ); // check that the rectangle is valid
+            
         rect = Rect( Point(mouseX1, mouseY1), Point (mouseX2, mouseY2) );
         
         
@@ -90,7 +96,7 @@ static void interactiveGrabCut() {
         imgWorkingCopy.convertTo(imgWorkingCopy, CV_32FC3); // gemm needs float matrix
         imgWorkingCopy = imgWorkingCopy.mul(fgMask);
         imgWorkingCopy.convertTo(imgWorkingCopy, CV_8UC3);
-
+        
         viewport = imgWorkingCopy.clone();
         rectangle(viewport, rect, Scalar(0,0,255));
         
@@ -103,8 +109,34 @@ static void interactiveGrabCut() {
         // initalise mat for refine mask as all white
         refineMask = Mat(rows, cols, CV_8UC1, 255);
         
-        setMouseCallback("Viewer", mousePaintEvent);
+        return 0;
+        
+    } else if (mode == REFINE_MASK) {
+        
+        // apply refined mask to first mask
+        for (int i=0; i<img.rows; i++) {
+            for (int j=0; j<img.cols; j++) {
+                int v = refineMask.at<uchar>(i,j);
+                if (v == GC_BGD) {
+                    mask.at<uchar>(i,j) = GC_BGD;
+                }
+            }
+        }
+        
+        cvtColor(mask, mask, CV_GRAY2BGR);
+        mask.convertTo(mask, CV_32FC3); // multiplication requires 3-channel float
+        imgWorkingCopy.convertTo(imgWorkingCopy, CV_32FC3); // gemm needs float matrix
+        imgWorkingCopy = imgWorkingCopy.mul(mask);
+        imgWorkingCopy.convertTo(imgWorkingCopy, CV_8UC3);
+        
+        return 0;
+        
+    } else {
+        return 1;
     }
+    
+    
+    return 0;
 }
 
 // Mouse event handler for initial rectangle, call after image is loaded and window is made
@@ -121,7 +153,7 @@ static void mouseRectangleEvent(int event, int x, int y, int, void*) {
             mouseY2 = y;
             // printf("UP %d, %d\n", mouseY1, mouseY2);
             drag = !drag;
-            interactiveGrabCut(); // run grabcut
+            initiateGrabCut = !initiateGrabCut; // flag for grabcut
         case CV_EVENT_MOUSEMOVE:
             if (drag) {
                 viewport = img.clone();
@@ -146,56 +178,18 @@ int main(int argc, const char * argv[])
     // Prepare window
     namedWindow("Viewer", CV_WINDOW_AUTOSIZE);
     imshow("Viewer", img);
-    setMouseCallback("Viewer", mouseRectangleEvent);
     
-    int k=0;
-    while (1) {
-        k = waitKey();
-        if (k == 13) { // wait for enter key
-            
-//            refineMask.convertTo(refineMask, CV_8UC1, 255);
-//            imshow("Viewer", refineMask);
-//            
-//            waitKey();
-            
-            // apply refined mask to first mask
-            for (int i=0; i<img.rows; i++) {
-                for (int j=0; j<img.cols; j++) {
-                    int v = refineMask.at<uchar>(i,j);
-                    if (v == GC_BGD) {
-                        mask.at<uchar>(i,j) = GC_BGD;
-                    }
-                }
-            }
-            
-            imgWorkingCopy = img.clone();
-            
-            grabCut(img, mask, Rect(), bgModel, fgModel, 5, GC_INIT_WITH_MASK); // grabcut with new mask
-            
-            for (int i=0; i<img.rows; i++) {
-                for (int j=0; j<img.cols; j++) {
-                    int v = mask.at<uchar>(i,j);
-                    if (v == 0 || v == 2) {
-                        mask.at<uchar>(i,j) = 0;
-                    } else if (v == 1 || v == 3) {
-                        mask.at<uchar>(i,j) = 1;
-                    }
-                }
-            }
-            
-            cvtColor(mask, mask, CV_GRAY2BGR);
-            
-//            fgMask.convertTo(fgMask, CV_8UC3, 255);
-//            imshow("Viewer", fgMask);
-//            waitKey();
-            
-            mask.convertTo(mask, CV_32FC3); // multiplication requires 3-channel float
-            imgWorkingCopy.convertTo(imgWorkingCopy, CV_32FC3); // gemm needs float matrix
-            imgWorkingCopy = imgWorkingCopy.mul(mask);
-            imgWorkingCopy.convertTo(imgWorkingCopy, CV_8UC3);
-            break;
-        }
-    }
+    // Let the user define a rectangle
+    setMouseCallback("Viewer", mouseRectangleEvent);
+    while (!initiateGrabCut) {}
+    initiateGrabCut = !initiateGrabCut;
+    interactiveGrabCut(RECT_MASK);
+    
+    // Let the user define a refine mask
+    setMouseCallback("Viewer", mousePaintEvent);
+    while (!initiateGrabCut){}
+    initiateGrabCut = !initiateGrabCut;
+    interactiveGrabCut(REFINE_MASK);
     
     imshow("Viewer", imgWorkingCopy);
     
