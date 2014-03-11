@@ -41,6 +41,7 @@ static void mousePaintEvent(int event, int x, int y, int, void*) {
             mouseX2 = x;
             mouseY2 = y;
             drag = !drag;
+            initiateGrabCut = true;
         case CV_EVENT_MOUSEMOVE:
             if (drag) {
                 circle(viewport, Point(x,y), brushRadius, Scalar(150,150,150), -1);
@@ -153,7 +154,7 @@ static void mouseRectangleEvent(int event, int x, int y, int, void*) {
             mouseY2 = y;
             // printf("UP %d, %d\n", mouseY1, mouseY2);
             drag = !drag;
-            initiateGrabCut = !initiateGrabCut; // flag for grabcut
+            initiateGrabCut = true; // flag for grabcut
         case CV_EVENT_MOUSEMOVE:
             if (drag) {
                 viewport = img.clone();
@@ -181,17 +182,21 @@ int main(int argc, const char * argv[])
     
     // Let the user define a rectangle
     setMouseCallback("Viewer", mouseRectangleEvent);
-    while (!initiateGrabCut) {}
-    initiateGrabCut = !initiateGrabCut;
-    interactiveGrabCut(RECT_MASK);
-    
+    while (!initiateGrabCut) {
+        printf("waiting for grabcut init");
+    }
+    if (initiateGrabCut) {
+        interactiveGrabCut(RECT_MASK);
+        initiateGrabCut = false;
+    }
+    /*
     // Let the user define a refine mask
     setMouseCallback("Viewer", mousePaintEvent);
     while (!initiateGrabCut){}
     initiateGrabCut = !initiateGrabCut;
     interactiveGrabCut(REFINE_MASK);
     
-    imshow("Viewer", imgWorkingCopy);
+    imshow("Viewer", imgWorkingCopy); */
     
     waitKey(); // press any key to exit
     
