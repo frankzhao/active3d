@@ -16,6 +16,7 @@
 using namespace cv;
 using namespace std;
 
+int key; // keyboard input
 int mouseX1 = 0, mouseY1 = 0, mouseX2 = 0, mouseY2 = 0;
 bool drag = false;
 bool initiateGrabCut = false;
@@ -25,34 +26,6 @@ Mat mask, refineMask, fgMask, fgModel, bgModel;
 Rect rect;
 
 //void grabCut(InputArray img, InputOutputArray mask, Rect rect, InputOutputArray bgdModel, InputOutputArray fgdModel, int iterCount, int mode=GC_EVAL )
-
-// Mouse event handler for mask painting
-int brushRadius = 20;
-static void mousePaintEvent(int event, int x, int y, int, void*) {
-    switch (event) {
-        case CV_EVENT_LBUTTONDOWN:
-            mouseX1 = x;
-            mouseY1 = y;
-            drag = !drag;
-            circle(viewport, Point (x,y), brushRadius, Scalar(150,150,150), -1);
-            circle(refineMask, Point (x,y), brushRadius, GC_BGD, -1);
-            break;
-        case CV_EVENT_LBUTTONUP:
-            mouseX2 = x;
-            mouseY2 = y;
-            drag = !drag;
-            initiateGrabCut = true;
-        case CV_EVENT_MOUSEMOVE:
-            if (drag) {
-                circle(viewport, Point(x,y), brushRadius, Scalar(150,150,150), -1);
-                circle(refineMask, Point(x,y), brushRadius, GC_BGD, -1);
-                imshow("Viewer", viewport);
-
-            }
-        default:
-            break;
-    }
-}
 
 static int interactiveGrabCut(int mode) {
     int rows = img.rows;
@@ -114,6 +87,7 @@ static int interactiveGrabCut(int mode) {
         
     } else if (mode == REFINE_MASK) {
         
+        
         // apply refined mask to first mask
         for (int i=0; i<img.rows; i++) {
             for (int j=0; j<img.cols; j++) {
@@ -124,7 +98,24 @@ static int interactiveGrabCut(int mode) {
             }
         }
         
+        imgWorkingCopy = img.clone();
+        
+        grabCut(img, mask, Rect(), bgModel, fgModel, 5, GC_INIT_WITH_MASK); // grabcut with new mask
+        
+        for (int i=0; i<img.rows; i++) {
+            for (int j=0; j<img.cols; j++) {
+                int v = mask.at<uchar>(i,j);
+                if (v == 0 || v == 2) {
+                    mask.at<uchar>(i,j) = 0;
+                } else if (v == 1 || v == 3) {
+                    mask.at<uchar>(i,j) = 1;
+                }
+            }
+        }
+        
         cvtColor(mask, mask, CV_GRAY2BGR);
+        imshow("Viewer", mask);
+        
         mask.convertTo(mask, CV_32FC3); // multiplication requires 3-channel float
         imgWorkingCopy.convertTo(imgWorkingCopy, CV_32FC3); // gemm needs float matrix
         imgWorkingCopy = imgWorkingCopy.mul(mask);
@@ -138,6 +129,32 @@ static int interactiveGrabCut(int mode) {
     
     
     return 0;
+}
+
+// Mouse event handler for mask painting
+int brushRadius = 20;
+static void mousePaintEvent(int event, int x, int y, int, void*) {
+    switch (event) {
+        case CV_EVENT_LBUTTONDOWN:
+            drag = !drag;
+            circle(viewport, Point (x,y), brushRadius, Scalar(150,150,150), -1);
+            circle(refineMask, Point (x,y), brushRadius, GC_BGD, -1);
+            break;
+        case CV_EVENT_LBUTTONUP:
+            drag = !drag;
+            setMouseCallback("Viewer", NULL, NULL); // remove mouse callback
+            interactiveGrabCut(REFINE_MASK); // run grabcut
+            imshow("Viewer", imgWorkingCopy);
+            break;
+        case CV_EVENT_MOUSEMOVE:
+            if (drag) {
+                circle(viewport, Point(x,y), brushRadius, Scalar(150,150,150), -1);
+                circle(refineMask, Point(x,y), brushRadius, GC_BGD, -1);
+                imshow("Viewer", viewport);
+            }
+        default:
+            break;
+    }
 }
 
 // Mouse event handler for initial rectangle, call after image is loaded and window is made
@@ -154,7 +171,12 @@ static void mouseRectangleEvent(int event, int x, int y, int, void*) {
             mouseY2 = y;
             // printf("UP %d, %d\n", mouseY1, mouseY2);
             drag = !drag;
-            initiateGrabCut = true; // flag for grabcut
+            setMouseCallback("Viewer", NULL, NULL); // remove mouse callback
+            interactiveGrabCut(RECT_MASK); // run grabcut
+            
+            // Let the user define a refine mask
+            setMouseCallback("Viewer", mousePaintEvent);
+            break;
         case CV_EVENT_MOUSEMOVE:
             if (drag) {
                 viewport = img.clone();
@@ -179,26 +201,18 @@ int main(int argc, const char * argv[])
     // Prepare window
     namedWindow("Viewer", CV_WINDOW_AUTOSIZE);
     imshow("Viewer", img);
+    waitKey(200);
     
     // Let the user define a rectangle
     setMouseCallback("Viewer", mouseRectangleEvent);
-    while (!initiateGrabCut) {
-        printf("waiting for grabcut init");
+        
+    //esc to exit
+    while (1) {
+        key = waitKey();
+        if (key == 27) {
+            break;
+        }
     }
-    if (initiateGrabCut) {
-        interactiveGrabCut(RECT_MASK);
-        initiateGrabCut = false;
-    }
-    /*
-    // Let the user define a refine mask
-    setMouseCallback("Viewer", mousePaintEvent);
-    while (!initiateGrabCut){}
-    initiateGrabCut = !initiateGrabCut;
-    interactiveGrabCut(REFINE_MASK);
-    
-    imshow("Viewer", imgWorkingCopy); */
-    
-    waitKey(); // press any key to exit
     
     img.release();
     imgWorkingCopy.release();
