@@ -9,6 +9,9 @@
 #define RECT_MASK 0
 #define REFINE_MASK 1
 
+#define MODE_RECTMODE 0
+#define MODE_PAINTMODE 1
+
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <stdlib.h>
@@ -17,9 +20,9 @@ using namespace cv;
 using namespace std;
 
 int key; // keyboard input
+int mode = -1; //current mode we are in
 int mouseX1 = 0, mouseY1 = 0, mouseX2 = 0, mouseY2 = 0;
-bool drag = false;
-bool initiateGrabCut = false;
+bool drag = false, drawing = true, paintFG = false;
 
 Mat img, imgWorkingCopy, viewport;
 Mat mask, refineMask, fgMask, fgModel, bgModel;
@@ -27,11 +30,11 @@ Rect rect;
 
 //void grabCut(InputArray img, InputOutputArray mask, Rect rect, InputOutputArray bgdModel, InputOutputArray fgdModel, int iterCount, int mode=GC_EVAL )
 
-static int interactiveGrabCut(int mode) {
+static int interactiveGrabCut(int grabCutMode) {
     int rows = img.rows;
     int cols = img.cols;
     
-    if (mode == RECT_MASK) {
+    if (grabCutMode == RECT_MASK) {
     
         // initialise algorithm arrays with zeros
         mask = Mat(rows, cols, CV_8UC1, double(0));
@@ -85,7 +88,7 @@ static int interactiveGrabCut(int mode) {
         
         return 0;
         
-    } else if (mode == REFINE_MASK) {
+    } else if (grabCutMode == REFINE_MASK) {
         
         
         // apply refined mask to first mask
@@ -134,24 +137,40 @@ static int interactiveGrabCut(int mode) {
 // Mouse event handler for mask painting
 int brushRadius = 20;
 static void mousePaintEvent(int event, int x, int y, int, void*) {
+    
     switch (event) {
+
         case CV_EVENT_LBUTTONDOWN:
             drag = !drag;
-            circle(viewport, Point (x,y), brushRadius, Scalar(150,150,150), -1);
-            circle(refineMask, Point (x,y), brushRadius, GC_BGD, -1);
+            if (!paintFG) {
+                circle(viewport, Point (x,y), brushRadius, Scalar(150,150,150), -1);
+                circle(refineMask, Point (x,y), brushRadius, GC_BGD, -1);
+            } else if (paintFG) {
+                circle(viewport, Point (x,y), brushRadius, Scalar(255,255,255), -1);
+                circle(refineMask, Point (x,y), brushRadius, GC_FGD, -1);
+            }
+            imshow("Viewer", viewport);
             break;
         case CV_EVENT_LBUTTONUP:
             drag = !drag;
-            setMouseCallback("Viewer", NULL, NULL); // remove mouse callback
-            interactiveGrabCut(REFINE_MASK); // run grabcut
-            imshow("Viewer", imgWorkingCopy);
+            if (!drawing) {
+                setMouseCallback("Viewer", NULL, NULL); // remove mouse callback
+                interactiveGrabCut(REFINE_MASK); // run grabcut
+            }
+            imshow("Viewer", viewport);
             break;
         case CV_EVENT_MOUSEMOVE:
             if (drag) {
-                circle(viewport, Point(x,y), brushRadius, Scalar(150,150,150), -1);
-                circle(refineMask, Point(x,y), brushRadius, GC_BGD, -1);
+                if (!paintFG) {
+                    circle(viewport, Point (x,y), brushRadius, Scalar(150,150,150), -1);
+                    circle(refineMask, Point (x,y), brushRadius, GC_BGD, -1);
+                } else if (paintFG) {
+                    circle(viewport, Point (x,y), brushRadius, Scalar(255,255,255), -1);
+                    circle(refineMask, Point (x,y), brushRadius, GC_FGD, -1);
+                }
                 imshow("Viewer", viewport);
             }
+            break;
         default:
             break;
     }
@@ -174,8 +193,9 @@ static void mouseRectangleEvent(int event, int x, int y, int, void*) {
             setMouseCallback("Viewer", NULL, NULL); // remove mouse callback
             interactiveGrabCut(RECT_MASK); // run grabcut
             
-            // Let the user define a refine mask
+            // Let the user define a refine mask in paint mode
             setMouseCallback("Viewer", mousePaintEvent);
+            mode = MODE_PAINTMODE;
             break;
         case CV_EVENT_MOUSEMOVE:
             if (drag) {
@@ -183,6 +203,7 @@ static void mouseRectangleEvent(int event, int x, int y, int, void*) {
                 rectangle(viewport, Point(mouseX1, mouseY1), Point(x, y), Scalar(0,255,0));
                 imshow("Viewer", viewport);
             }
+            break;
         default:
             break;
     }
@@ -205,12 +226,16 @@ int main(int argc, const char * argv[])
     
     // Let the user define a rectangle
     setMouseCallback("Viewer", mouseRectangleEvent);
+    mode = MODE_RECTMODE;
         
     //esc to exit
     while (1) {
         key = waitKey();
+        
         if (key == 27) {
             break;
+        } else if (key == 17 && mode == MODE_PAINTMODE) {
+            paintFG = !paintFG;
         }
     }
     
