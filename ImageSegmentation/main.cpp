@@ -9,8 +9,9 @@
 #define RECT_MASK 0
 #define REFINE_MASK 1
 
-#define MODE_RECTMODE 0
-#define MODE_PAINTMODE 1
+#define MODE_IDLE 0
+#define MODE_RECTMODE 1
+#define MODE_PAINTMODE 2
 
 #include <iostream>
 #include <opencv2/opencv.hpp>
@@ -20,7 +21,7 @@ using namespace cv;
 using namespace std;
 
 int key; // keyboard input
-int mode = -1; //current mode we are in
+int mode = 0; //current mode we are in
 int mouseX1 = 0, mouseY1 = 0, mouseX2 = 0, mouseY2 = 0;
 bool drag = false, drawing = true, paintFG = false;
 
@@ -28,7 +29,45 @@ Mat img, imgWorkingCopy, viewport;
 Mat mask, refineMask, fgMask, fgModel, bgModel;
 Rect rect;
 
-//void grabCut(InputArray img, InputOutputArray mask, Rect rect, InputOutputArray bgdModel, InputOutputArray fgdModel, int iterCount, int mode=GC_EVAL )
+/*********************
+ *  Utility methods  *
+ *********************/
+
+//TODO add option to specify placement location and blending coefficients
+int overlayImage(Mat src, Mat overlay, Mat dest) {
+    
+    if ( (src.rows * src.cols) != (overlay.rows * overlay.cols) ) {
+        cerr << "OverlayImage: source and overlay imaged are not the same!" << endl;
+        return 1;
+    }
+    
+    for (int i=0; i<src.rows; i++) {
+        for (int j=0; j<src.cols; j++) {
+            dest.at<uchar>(i,j) = src.at<uchar>(i,j);
+            dest.at<uchar>(i,j) = overlay.at<uchar>(i,j);
+        }
+    }
+    
+    return 0;
+}
+
+// apply a mask with unmasked areas in alpha=0
+int applyMask(Mat src, Mat mask, Mat dest) {
+    
+    for (int i=0; i<src.rows; i++) {
+        for (int j=0; j<src.cols; j++) {
+            Vec4b& dest = dest.at<Vec4b>(i,j);
+            Vec4b& src  = src.at<Vec4b>(i,j)>;
+            destv[0] =
+        }
+    }
+    
+    return 0;
+}
+
+/*********************
+ *      Grabcut      *
+ *********************/
 
 static int interactiveGrabCut(int grabCutMode) {
     int rows = img.rows;
@@ -46,7 +85,6 @@ static int interactiveGrabCut(int grabCutMode) {
         assert(rectArea > 0 && rectArea < (img.cols * img.rows) ); // check that the rectangle is valid
             
         rect = Rect( Point(mouseX1, mouseY1), Point (mouseX2, mouseY2) );
-        
         
         // GC_INIT_WITH_RECT -> using rectangle
         // GC_INIT_WITH_MASK -> using mask
@@ -69,10 +107,10 @@ static int interactiveGrabCut(int grabCutMode) {
         imgWorkingCopy = img.clone();
         
         cvtColor(fgMask, fgMask, CV_GRAY2BGR); // convert from 8-bit single channel mask to 3 channel
-        fgMask.convertTo(fgMask, CV_32FC3);
-        imgWorkingCopy.convertTo(imgWorkingCopy, CV_32FC3); // gemm needs float matrix
+        fgMask.convertTo(fgMask, CV_32FC4);
+        imgWorkingCopy.convertTo(imgWorkingCopy, CV_32FC4); // gemm needs float matrix
         imgWorkingCopy = imgWorkingCopy.mul(fgMask);
-        imgWorkingCopy.convertTo(imgWorkingCopy, CV_8UC3);
+        imgWorkingCopy.convertTo(imgWorkingCopy, CV_8UC4);
         
         viewport = imgWorkingCopy.clone();
         rectangle(viewport, rect, Scalar(0,0,255));
@@ -97,6 +135,8 @@ static int interactiveGrabCut(int grabCutMode) {
                 int v = refineMask.at<uchar>(i,j);
                 if (v == GC_BGD) {
                     mask.at<uchar>(i,j) = GC_BGD;
+                } else if (v == GC_FGD) {
+                    mask.at<uchar>(i,j) = GC_FGD;
                 }
             }
         }
@@ -117,12 +157,13 @@ static int interactiveGrabCut(int grabCutMode) {
         }
         
         cvtColor(mask, mask, CV_GRAY2BGR);
-        imshow("Viewer", mask);
         
-        mask.convertTo(mask, CV_32FC3); // multiplication requires 3-channel float
-        imgWorkingCopy.convertTo(imgWorkingCopy, CV_32FC3); // gemm needs float matrix
+        mask.convertTo(mask, CV_32FC4); // multiplication requires 3-channel float
+        imgWorkingCopy.convertTo(imgWorkingCopy, CV_32FC4); // gemm needs float matrix
         imgWorkingCopy = imgWorkingCopy.mul(mask);
-        imgWorkingCopy.convertTo(imgWorkingCopy, CV_8UC3);
+        imgWorkingCopy.convertTo(imgWorkingCopy, CV_8UC4);
+        
+        imshow("Viewer", imgWorkingCopy);
         
         return 0;
         
@@ -134,8 +175,12 @@ static int interactiveGrabCut(int grabCutMode) {
     return 0;
 }
 
+/*********************
+ *  Event handling   *
+ *********************/
+
 // Mouse event handler for mask painting
-int brushRadius = 20;
+int brushRadius = 15;
 static void mousePaintEvent(int event, int x, int y, int, void*) {
     
     switch (event) {
@@ -153,10 +198,6 @@ static void mousePaintEvent(int event, int x, int y, int, void*) {
             break;
         case CV_EVENT_LBUTTONUP:
             drag = !drag;
-            if (!drawing) {
-                setMouseCallback("Viewer", NULL, NULL); // remove mouse callback
-                interactiveGrabCut(REFINE_MASK); // run grabcut
-            }
             imshow("Viewer", viewport);
             break;
         case CV_EVENT_MOUSEMOVE:
@@ -209,6 +250,10 @@ static void mouseRectangleEvent(int event, int x, int y, int, void*) {
     }
 }
 
+/*********************
+ *       Main        *
+ *********************/
+
 int main(int argc, const char * argv[])
 {
     
@@ -231,11 +276,18 @@ int main(int argc, const char * argv[])
     //esc to exit
     while (1) {
         key = waitKey();
+        // printf("%d\n", key);
         
         if (key == 27) {
             break;
-        } else if (key == 17 && mode == MODE_PAINTMODE) {
+        } else if (key == 109 && mode == MODE_PAINTMODE) {
+            // m key to toggle mask
             paintFG = !paintFG;
+        } else if (key == 13 && mode == MODE_PAINTMODE) {
+            // enter key to run refine mask
+            setMouseCallback("Viewer", NULL, NULL); // remove mouse callback
+            interactiveGrabCut(REFINE_MASK); // run grabcut
+            mode = MODE_IDLE;
         }
     }
     
