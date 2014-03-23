@@ -262,6 +262,10 @@ static void mouseRectangleEvent(int event, int x, int y, int, void*) {
     }
 }
 
+/*********************
+ *       Image       *
+ *********************/
+
 int initialize_image() {
     img = imread("/Users/frank/dev/COMP4550/dog.jpg");
     
