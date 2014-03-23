@@ -56,9 +56,21 @@ int applyMask(Mat src, Mat mask, Mat dest) {
     
     for (int i=0; i<src.rows; i++) {
         for (int j=0; j<src.cols; j++) {
-            Vec4b& dest = dest.at<Vec4b>(i,j);
-            Vec4b& src  = src.at<Vec4b>(i,j)>;
-            destv[0] =
+            Vec4b& destv = dest.at<Vec4b>(i,j);
+            Vec4b& srcv  = src.at<Vec4b>(i,j);
+            Vec4b& maskv  = mask.at<Vec4b>(i,j);
+            
+            destv[0] = srcv[0] * maskv[0];
+            destv[1] = srcv[1] * maskv[1];
+            destv[2] = srcv[2] * maskv[2];
+            
+            if ( (destv[0] + destv[1] + destv[2]) == 0) {
+                destv[3] = 0;
+            } else {
+                destv[3] = 1;
+            }
+
+            
         }
     }
     
@@ -250,17 +262,10 @@ static void mouseRectangleEvent(int event, int x, int y, int, void*) {
     }
 }
 
-/*********************
- *       Main        *
- *********************/
-
-int main(int argc, const char * argv[])
-{
-    
+int initialize_image() {
     img = imread("/Users/frank/dev/COMP4550/dog.jpg");
     
     if (img.data == 0) {
-        cerr << "Image not found!" << endl;
         return -1;
     }
     
@@ -272,11 +277,37 @@ int main(int argc, const char * argv[])
     // Let the user define a rectangle
     setMouseCallback("Viewer", mouseRectangleEvent);
     mode = MODE_RECTMODE;
-        
+    return 0;
+}
+
+void release_memory() {
+    img.release();
+    imgWorkingCopy.release();
+    mask.release();
+    fgMask.release();
+    fgModel.release();
+    bgModel.release();
+    viewport.release();
+    refineMask.release();
+}
+
+/*********************
+ *       Main        *
+ *********************/
+
+int main(int argc, const char * argv[])
+{
+    int retval = initialize_image();
+    
+    if (retval == -1) {
+        cerr << "Image not found!" << endl;
+        return -1;
+    }
+    
     //esc to exit
     while (1) {
         key = waitKey();
-        // printf("%d\n", key);
+        //printf("%d\n", key);
         
         if (key == 27) {
             break;
@@ -288,17 +319,13 @@ int main(int argc, const char * argv[])
             setMouseCallback("Viewer", NULL, NULL); // remove mouse callback
             interactiveGrabCut(REFINE_MASK); // run grabcut
             mode = MODE_IDLE;
+        } else if (key == 114) { //restart if 'r' is pressed
+            release_memory();
+            initialize_image();
         }
     }
     
-    img.release();
-    imgWorkingCopy.release();
-    mask.release();
-    fgMask.release();
-    fgModel.release();
-    bgModel.release();
-    viewport.release();
-    refineMask.release();
+    release_memory();
     
     return 0;
 }
