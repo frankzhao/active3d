@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0125A5AB18E1A91C00004934 /* utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0125A5AA18E1A91C00004934 /* utility.cpp */; };
 		01DD1FC718B9FC5200D12CF0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01DD1FC618B9FC5200D12CF0 /* main.cpp */; };
 		01DD1FC918B9FC5200D12CF0 /* ImageSegmentation.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 01DD1FC818B9FC5200D12CF0 /* ImageSegmentation.1 */; };
 		01DD1FE218BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 01DD1FE018BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib */; };
@@ -28,6 +29,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0125A5A918E1A90800004934 /* utility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utility.h; sourceTree = "<group>"; };
+		0125A5AA18E1A91C00004934 /* utility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utility.cpp; sourceTree = "<group>"; };
 		01DD1FC318B9FC5200D12CF0 /* ImageSegmentation */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ImageSegmentation; sourceTree = BUILT_PRODUCTS_DIR; };
 		01DD1FC618B9FC5200D12CF0 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		01DD1FC818B9FC5200D12CF0 /* ImageSegmentation.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = ImageSegmentation.1; sourceTree = "<group>"; };
@@ -73,6 +76,8 @@
 			isa = PBXGroup;
 			children = (
 				01DD1FC618B9FC5200D12CF0 /* main.cpp */,
+				0125A5AA18E1A91C00004934 /* utility.cpp */,
+				0125A5A918E1A90800004934 /* utility.h */,
 				01DD1FC818B9FC5200D12CF0 /* ImageSegmentation.1 */,
 			);
 			path = ImageSegmentation;
@@ -129,6 +134,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0125A5AB18E1A91C00004934 /* utility.cpp in Sources */,
 				01DD1FC718B9FC5200D12CF0 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -263,6 +269,7 @@
 				01DD1FCE18B9FC5200D12CF0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
