@@ -17,6 +17,17 @@
 #include <stdlib.h>
 #include "utility.h"
 
+// OpenGL
+//#ifdef __APPLE__
+//#include <GLUT/glut.h>
+//#include <OpenGL/gl.h>
+//#include <OpenGL/glu.h>
+//#else
+//#include <GL/glut.h>
+//#include <GL/glu.h>
+//#include <GL/gl.h>
+//#endif
+
 using namespace cv;
 using namespace std;
 
@@ -127,6 +138,7 @@ static int interactiveGrabCut(int grabCutMode) {
         imgWorkingCopy.convertTo(imgWorkingCopy, CV_32FC4); // gemm needs float matrix
         imgWorkingCopy = imgWorkingCopy.mul(mask);
         imgWorkingCopy.convertTo(imgWorkingCopy, CV_8UC4);
+        mask.convertTo(mask, CV_8UC1);
         
         imshow("Viewer", imgWorkingCopy);
         
@@ -220,7 +232,7 @@ static void mouseRectangleEvent(int event, int x, int y, int, void*) {
  *********************/
 
 int initialize_image() {
-    img = imread("/Users/frank/dev/COMP4550/dog.jpg");
+    img = imread("/Users/frank/dev/COMP4550/coffee.jpg");
     
     if (img.data == 0) {
         return -1;
@@ -246,6 +258,50 @@ void release_memory() {
     bgModel.release();
     viewport.release();
     refineMask.release();
+}
+
+// Generate depth map in alpha values
+void depthMap(){
+    vector< vector<Point> > contours;
+    vector<Vec4i> contourHierarchy;
+    Mat bwImageMasked;
+    cvtColor(imgWorkingCopy, bwImageMasked, CV_BGR2GRAY);
+    
+    Mat cannyOut;
+    Canny(imgWorkingCopy, cannyOut, 0, 255, 3);
+    
+    findContours(bwImageMasked, contours, contourHierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
+    
+    drawContours(imgWorkingCopy, contours, -1, Scalar(0,0,255));
+    
+//    // random colour for each contour hierarchy
+//    int idx = 0;
+//    for( ; idx >= 0; idx = contourHierarchy[idx][0]) {
+//        Scalar color( rand()&255, rand()&255, rand()&255 );
+//        drawContours( imgWorkingCopy, contours, idx, color, 2, 8, contourHierarchy, 2);
+//    }
+    
+    imshow("Viewer", imgWorkingCopy);
+
+//    //apply first contour
+//    for (int i=0; i<img.rows; i++) {
+//        for (int j=0; j<img.cols; j++) {
+//            Vec4b& destv = imgWorkingCopy.at<Vec4b>(i,j);
+//            int maskv  = mask.at<uchar>(i,j);
+//            
+//            destv[0] = srcv[0] * maskv[0];
+//            destv[1] = srcv[1] * maskv[1];
+//            destv[2] = srcv[2] * maskv[2];
+//            
+//            if ( (destv[0] + destv[1] + destv[2]) == 0) {
+//                destv[3] = 0;
+//            } else {
+//                destv[3] = 1;
+//            }
+//            
+//            
+//        }
+//    }
 }
 
 /*********************
@@ -276,6 +332,7 @@ int main(int argc, const char * argv[])
             setMouseCallback("Viewer", NULL, NULL); // remove mouse callback
             interactiveGrabCut(REFINE_MASK); // run grabcut
             mode = MODE_IDLE;
+            depthMap();
         } else if (key == 114) { //restart if 'r' is pressed
             release_memory();
             initialize_image();

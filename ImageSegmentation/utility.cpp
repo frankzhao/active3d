@@ -22,7 +22,7 @@ using namespace std;
 int overlayImage(Mat src, Mat overlay, Mat dest) {
     
     if ( (src.rows * src.cols) != (overlay.rows * overlay.cols) ) {
-        cerr << "OverlayImage: source and overlay imaged are not the same!" << endl;
+        cerr << "OverlayImage: source and overlay imaged are not the same size!" << endl;
         return 1;
     }
     
