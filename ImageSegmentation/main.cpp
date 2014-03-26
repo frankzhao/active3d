@@ -262,13 +262,60 @@ void release_memory() {
 
 // Generate depth map in alpha values
 void depthMap(){
+    
+    Mat bwImageMasked;
+    cvtColor(imgWorkingCopy, bwImageMasked, CV_BGR2GRAY);
+    
+    //apply first contour
+    for (int i=0; i<img.rows; i++) {
+        for (int j=0; j<img.cols; j++) {
+            Vec4b& destv = imgWorkingCopy.at<Vec4b>(i,j);
+            
+            // count neighbouring fg pixels
+            int bgcount;
+            
+            bgcount = mask.at<uchar>(i+1, j-1) + mask.at<uchar>(i+1, j) + mask.at<uchar>(i+1, j+1) +
+                mask.at<uchar>(i, j-1) + mask.at<uchar>(i, j+1) +
+                mask.at<uchar>(i-1, j-1) + mask.at<uchar>(i-1, j) + mask.at<uchar>(i-1, j+1);
+            
+            printf("%d ", bgcount);
+            
+            
+            // outer contour edge
+            if (bgcount > 2) {
+                destv[0] = 0;
+                destv[1] = 0;
+                destv[2] = 255;
+            }
+            
+            
+        }
+    }
+    
+/*
+    
     vector< vector<Point> > contours;
     vector<Vec4i> contourHierarchy;
     Mat bwImageMasked;
     cvtColor(imgWorkingCopy, bwImageMasked, CV_BGR2GRAY);
     
     Mat cannyOut;
-    Canny(imgWorkingCopy, cannyOut, 0, 255, 3);
+    Canny(imgWorkingCopy, cannyOut, 100, 200, 3);
+    
+    imshow("Viewer", cannyOut);
+    waitKey();
+    
+//    // increase image contrast
+//    /// Do the operation new_image(i,j) = alpha*image(i,j) + beta
+//    for( int y = 0; y < image.rows; y++ )
+//    { for( int x = 0; x < image.cols; x++ )
+//    { for( int c = 0; c < 3; c++ )
+//    {
+//        new_image.at<Vec3b>(y,x)[c] =
+//        saturate_cast<uchar>( alpha*( image.at<Vec3b>(y,x)[c] ) + beta );
+//    }
+//    }
+//    }
     
     findContours(bwImageMasked, contours, contourHierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
     
@@ -281,27 +328,8 @@ void depthMap(){
 //        drawContours( imgWorkingCopy, contours, idx, color, 2, 8, contourHierarchy, 2);
 //    }
     
+*/
     imshow("Viewer", imgWorkingCopy);
-
-//    //apply first contour
-//    for (int i=0; i<img.rows; i++) {
-//        for (int j=0; j<img.cols; j++) {
-//            Vec4b& destv = imgWorkingCopy.at<Vec4b>(i,j);
-//            int maskv  = mask.at<uchar>(i,j);
-//            
-//            destv[0] = srcv[0] * maskv[0];
-//            destv[1] = srcv[1] * maskv[1];
-//            destv[2] = srcv[2] * maskv[2];
-//            
-//            if ( (destv[0] + destv[1] + destv[2]) == 0) {
-//                destv[3] = 0;
-//            } else {
-//                destv[3] = 1;
-//            }
-//            
-//            
-//        }
-//    }
 }
 
 /*********************
