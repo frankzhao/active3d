@@ -264,31 +264,31 @@ void release_memory() {
 void depthMap(){
     
     Mat bwImageMasked;
-    cvtColor(imgWorkingCopy, bwImageMasked, CV_BGR2GRAY);
+    //cvtColor(imgWorkingCopy, bwImageMasked, CV_BGR2GRAY);
+    cvtColor(mask, mask, CV_BGR2GRAY);
     
     //apply first contour
-    for (int i=0; i<img.rows; i++) {
-        for (int j=0; j<img.cols; j++) {
+    for (int i=0; i<mask.rows; i++) {
+        for (int j=0; j<mask.cols; j++) {
             Vec4b& destv = imgWorkingCopy.at<Vec4b>(i,j);
             
             // count neighbouring fg pixels
             int bgcount;
             
-            bgcount = mask.at<uchar>(i+1, j-1) + mask.at<uchar>(i+1, j) + mask.at<uchar>(i+1, j+1) +
-                mask.at<uchar>(i, j-1) + mask.at<uchar>(i, j+1) +
-                mask.at<uchar>(i-1, j-1) + mask.at<uchar>(i-1, j) + mask.at<uchar>(i-1, j+1);
+            if(i<mask.rows - 1 && i>0 && mask.cols-1 && j>0) {
+                bgcount = mask.at<uchar>(i+1, j-1) + mask.at<uchar>(i+1, j) + mask.at<uchar>(i+1, j+1) +
+                    mask.at<uchar>(i, j-1) + mask.at<uchar>(i, j+1) +
+                    mask.at<uchar>(i-1, j-1) + mask.at<uchar>(i-1, j) + mask.at<uchar>(i-1, j+1);
+                
+                printf("%d ", bgcount);
+                
+                
+                // outer contour edge
+                if (bgcount > 2) {
+                    destv = Vec4b(0,0,255,0);
+                }
             
-            printf("%d ", bgcount);
-            
-            
-            // outer contour edge
-            if (bgcount > 2) {
-                destv[0] = 0;
-                destv[1] = 0;
-                destv[2] = 255;
             }
-            
-            
         }
     }
     
