@@ -100,6 +100,9 @@ static int interactiveGrabCut(int grabCutMode) {
         // initalise mat for refine mask as all white
         refineMask = Mat(rows, cols, CV_8UC1, 255);
         
+        fgModel.release();
+        bgModel.release();
+        
         return 0;
         
     } else if (grabCutMode == REFINE_MASK) {
@@ -141,6 +144,9 @@ static int interactiveGrabCut(int grabCutMode) {
         mask.convertTo(mask, CV_8UC1);
         
         imshow("Viewer", imgWorkingCopy);
+        
+        fgModel.release();
+        bgModel.release();
         
         return 0;
         
@@ -265,30 +271,33 @@ void depthMap(int iterations) {
     
     Mat depthMask = fgMask.clone();
     Mat prevMask = Mat(fgMask.rows, fgMask.cols, CV_8UC1, double(0)); // mask from previous iteration
+    int rows = depthMask.rows, cols = depthMask.cols;
     
     //apply depth contour
     int count = 0;
-    for (int depth=1; depth<iterations; depth++) {
+    for (int depth=2; depth<iterations; depth++) {
         prevMask = depthMask.clone();
-        for (int i=0; i<depthMask.rows; i++) {
-            for (int j=0; j<depthMask.cols; j++) {
+        for (int i=0; i<rows; i++) {
+            for (int j=0; j<cols; j++) {
                 Vec3b& destv = imgWorkingCopy.at<Vec3b>(i,j);
                 
                 // count neighbouring pixels
-                if (prevMask.at<uchar>(i,j) > depth-1) {
+                if (prevMask.at<uchar>(i,j) == depth-1) {
                     count = countNeighbours(prevMask, depth-1, i, j);
-                    printf("%d ", count);
+                    //printf("%d ", count);
                 }
                 
                 // write depth
-                if (count > 2) {
-                    destv = Vec3b(0,0,depth*25);
+                if (count > 6) {
+                    destv = Vec3b(0,0, depth * ((int) (255 / iterations)) );
                     depthMask.at<uchar>(i,j) = depth;
                 }
                 
             }
         }
     }
+    depthMask.release();
+    prevMask.release();
     
 /*
     
@@ -358,7 +367,7 @@ int main(int argc, const char * argv[])
             setMouseCallback("Viewer", NULL, NULL); // remove mouse callback
             interactiveGrabCut(REFINE_MASK); // run grabcut
             mode = MODE_IDLE;
-            depthMap(10);
+            depthMap(100);
         } else if (key == 114) { //restart if 'r' is pressed
             release_memory();
             initialize_image();
