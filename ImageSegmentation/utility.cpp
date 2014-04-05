@@ -61,3 +61,31 @@ int applyMask(Mat src, Mat mask, Mat dest) {
     
     return 0;
 }
+
+// Count how many of the 8 neighbouring pixels
+// are of a particular value (8-bit, 1-channel)
+int countNeighbours(Mat m, int v, int row, int col) {
+    int count = 0;
+            
+    // make sure indicies are within bounds
+    if(row<m.rows - 1 && col>0 && m.cols-1 && col>0) {
+        // Check whether neighbouring pixels are v
+        if (m.at<uchar>(row+1, col-1) == v)
+            count++;
+        if(m.at<uchar>(row+1, col) == v)
+            count++;
+        if (m.at<uchar>(row+1, col+1) == v)
+            count++;
+        if (m.at<uchar>(row, col-1) == v)
+            count++;
+        if (m.at<uchar>(row, col+1) == v)
+            count++;
+        if (m.at<uchar>(row-1, col-1) == v)
+            count++;
+        if (m.at<uchar>(row-1, col) == v)
+            count++;
+        if (m.at<uchar>(row-1, col+1) == v)
+            count++;
+    }
+    return count;
+}

@@ -83,10 +83,10 @@ static int interactiveGrabCut(int grabCutMode) {
         imgWorkingCopy = img.clone();
         
         cvtColor(fgMask, fgMask, CV_GRAY2BGR); // convert from 8-bit single channel mask to 3 channel
-        fgMask.convertTo(fgMask, CV_32FC4);
-        imgWorkingCopy.convertTo(imgWorkingCopy, CV_32FC4); // gemm needs float matrix
+        fgMask.convertTo(fgMask, CV_32FC3);
+        imgWorkingCopy.convertTo(imgWorkingCopy, CV_32FC3); // gemm needs float matrix
         imgWorkingCopy = imgWorkingCopy.mul(fgMask);
-        imgWorkingCopy.convertTo(imgWorkingCopy, CV_8UC4);
+        imgWorkingCopy.convertTo(imgWorkingCopy, CV_8UC3);
         
         viewport = imgWorkingCopy.clone();
         rectangle(viewport, rect, Scalar(0,0,255));
@@ -134,10 +134,10 @@ static int interactiveGrabCut(int grabCutMode) {
         
         cvtColor(mask, mask, CV_GRAY2BGR);
         
-        mask.convertTo(mask, CV_32FC4); // multiplication requires 3-channel float
-        imgWorkingCopy.convertTo(imgWorkingCopy, CV_32FC4); // gemm needs float matrix
+        mask.convertTo(mask, CV_32FC3); // multiplication requires 3-channel float
+        imgWorkingCopy.convertTo(imgWorkingCopy, CV_32FC3); // gemm needs float matrix
         imgWorkingCopy = imgWorkingCopy.mul(mask);
-        imgWorkingCopy.convertTo(imgWorkingCopy, CV_8UC4);
+        imgWorkingCopy.convertTo(imgWorkingCopy, CV_8UC3);
         mask.convertTo(mask, CV_8UC1);
         
         imshow("Viewer", imgWorkingCopy);
@@ -260,34 +260,32 @@ void release_memory() {
     refineMask.release();
 }
 
-// Generate depth map in alpha values
-void depthMap(){
+// Generate depth map with specified iterations
+void depthMap(int iterations) {
     
-    Mat bwImageMasked;
-    //cvtColor(imgWorkingCopy, bwImageMasked, CV_BGR2GRAY);
-    cvtColor(mask, mask, CV_BGR2GRAY);
+    Mat depthMask = fgMask.clone();
+    Mat prevMask = Mat(fgMask.rows, fgMask.cols, CV_8UC1, double(0)); // mask from previous iteration
     
-    //apply first contour
-    for (int i=0; i<mask.rows; i++) {
-        for (int j=0; j<mask.cols; j++) {
-            Vec4b& destv = imgWorkingCopy.at<Vec4b>(i,j);
-            
-            // count neighbouring fg pixels
-            int bgcount;
-            
-            if(i<mask.rows - 1 && i>0 && mask.cols-1 && j>0) {
-                bgcount = mask.at<uchar>(i+1, j-1) + mask.at<uchar>(i+1, j) + mask.at<uchar>(i+1, j+1) +
-                    mask.at<uchar>(i, j-1) + mask.at<uchar>(i, j+1) +
-                    mask.at<uchar>(i-1, j-1) + mask.at<uchar>(i-1, j) + mask.at<uchar>(i-1, j+1);
+    //apply depth contour
+    int count = 0;
+    for (int depth=1; depth<iterations; depth++) {
+        prevMask = depthMask.clone();
+        for (int i=0; i<depthMask.rows; i++) {
+            for (int j=0; j<depthMask.cols; j++) {
+                Vec3b& destv = imgWorkingCopy.at<Vec3b>(i,j);
                 
-                printf("%d ", bgcount);
-                
-                
-                // outer contour edge
-                if (bgcount > 2) {
-                    destv = Vec4b(0,0,255,0);
+                // count neighbouring pixels
+                if (prevMask.at<uchar>(i,j) > depth-1) {
+                    count = countNeighbours(prevMask, depth-1, i, j);
+                    printf("%d ", count);
                 }
-            
+                
+                // write depth
+                if (count > 2) {
+                    destv = Vec3b(0,0,depth*25);
+                    depthMask.at<uchar>(i,j) = depth;
+                }
+                
             }
         }
     }
@@ -360,7 +358,7 @@ int main(int argc, const char * argv[])
             setMouseCallback("Viewer", NULL, NULL); // remove mouse callback
             interactiveGrabCut(REFINE_MASK); // run grabcut
             mode = MODE_IDLE;
-            depthMap();
+            depthMap(10);
         } else if (key == 114) { //restart if 'r' is pressed
             release_memory();
             initialize_image();
