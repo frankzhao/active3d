@@ -266,79 +266,6 @@ void release_memory() {
     refineMask.release();
 }
 
-// Generate depth map with specified iterations
-void depthMap(int iterations) {
-    
-    Mat depthMask = fgMask.clone();
-    Mat prevMask = Mat(fgMask.rows, fgMask.cols, CV_8UC1, double(0)); // mask from previous iteration
-    int rows = depthMask.rows, cols = depthMask.cols;
-    
-    //apply depth contour
-    int count = 0;
-    for (int depth=2; depth<iterations; depth++) {
-        prevMask = depthMask.clone();
-        for (int i=0; i<rows; i++) {
-            for (int j=0; j<cols; j++) {
-                Vec3b& destv = imgWorkingCopy.at<Vec3b>(i,j);
-                
-                // count neighbouring pixels
-                if (prevMask.at<uchar>(i,j) == depth-1) {
-                    count = countNeighbours(prevMask, depth-1, i, j);
-                    //printf("%d ", count);
-                }
-                
-                // write depth
-                if (count == 6) {
-                    destv = Vec3b(0,0, depth * ((int) (255 / iterations)) );
-                    depthMask.at<uchar>(i,j) = depth;
-                }
-                
-            }
-        }
-    }
-    depthMask.release();
-    prevMask.release();
-    
-/*
-    
-    vector< vector<Point> > contours;
-    vector<Vec4i> contourHierarchy;
-    Mat bwImageMasked;
-    cvtColor(imgWorkingCopy, bwImageMasked, CV_BGR2GRAY);
-    
-    Mat cannyOut;
-    Canny(imgWorkingCopy, cannyOut, 100, 200, 3);
-    
-    imshow("Viewer", cannyOut);
-    waitKey();
-    
-//    // increase image contrast
-//    /// Do the operation new_image(i,j) = alpha*image(i,j) + beta
-//    for( int y = 0; y < image.rows; y++ )
-//    { for( int x = 0; x < image.cols; x++ )
-//    { for( int c = 0; c < 3; c++ )
-//    {
-//        new_image.at<Vec3b>(y,x)[c] =
-//        saturate_cast<uchar>( alpha*( image.at<Vec3b>(y,x)[c] ) + beta );
-//    }
-//    }
-//    }
-    
-    findContours(bwImageMasked, contours, contourHierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
-    
-    drawContours(imgWorkingCopy, contours, -1, Scalar(0,0,255));
-    
-//    // random colour for each contour hierarchy
-//    int idx = 0;
-//    for( ; idx >= 0; idx = contourHierarchy[idx][0]) {
-//        Scalar color( rand()&255, rand()&255, rand()&255 );
-//        drawContours( imgWorkingCopy, contours, idx, color, 2, 8, contourHierarchy, 2);
-//    }
-    
-*/
-    imshow("Viewer", imgWorkingCopy);
-}
-
 /*********************
  *       Main        *
  *********************/
@@ -367,7 +294,7 @@ int main(int argc, const char * argv[])
             setMouseCallback("Viewer", NULL, NULL); // remove mouse callback
             interactiveGrabCut(REFINE_MASK); // run grabcut
             mode = MODE_IDLE;
-            depthMap(100);
+            depthMap(fgMask, viewport, "Viewer", 100, true);
         } else if (key == 114) { //restart if 'r' is pressed
             release_memory();
             initialize_image();

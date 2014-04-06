@@ -89,3 +89,42 @@ int countNeighbours(Mat m, int v, int row, int col) {
     }
     return count;
 }
+
+// Generate depth map with specified iterations
+void depthMap(Mat &mask, Mat &dest, const string &winname, int iterations, bool render) {
+    
+    Mat depthMask = mask.clone();
+    Mat prevMask = Mat(mask.rows, mask.cols, CV_8UC1, double(0)); // mask from previous iteration
+    int rows = depthMask.rows, cols = depthMask.cols;
+    
+    //apply depth contour
+    int count = 0;
+    for (int depth=2; depth<iterations; depth++) {
+        prevMask = depthMask.clone();
+        for (int i=0; i<rows; i++) {
+            for (int j=0; j<cols; j++) {
+                Vec3b& destv = dest.at<Vec3b>(i,j);
+                
+                // count neighbouring pixels
+                if (prevMask.at<uchar>(i,j) == depth-1) {
+                    count = countNeighbours(prevMask, depth-1, i, j);
+                    //printf("%d ", count);
+                }
+                
+                // write depth
+                if (count == 8) {
+                    if (render) {
+                        destv = Vec3b(0,0, depth * ((int) (255 / iterations)) );
+                    }
+                    depthMask.at<uchar>(i,j) = depth;
+                }
+                
+            }
+        }
+    }
+    depthMask.release();
+    prevMask.release();
+    
+    imshow(winname, dest);
+}
+
