@@ -27,10 +27,7 @@
 #include <GL/gl.h>
 #endif
 
-//#include "wx.h"
-//#include <glcanvas.h>
 #include "utility.h"
-//#include "data.h"
 
 #define RECT_MASK 0
 #define REFINE_MASK 1
@@ -341,14 +338,16 @@ void idle() {
 }
 
 void renderGL(int argc, char* argv[]) {
-    glutInit(&argc, argv);
+    //glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(img.rows, img.cols);
     
     glutCreateWindow("GLUT");
     glutDisplayFunc(display);
-    glutReshapeFunc(reshape);
-    glutIdleFunc(idle);
+    //glutReshapeFunc(reshape);
+    //glutIdleFunc(idle);
+    
+    //display();
     
     glutMainLoop();
 }
@@ -384,7 +383,7 @@ int main(int argc, char * argv[]) {
             depthMap(fgMask, imgWorkingCopy, 100, windowName, true);
             imshow(windowName, imgWorkingCopy);
             
-            renderGL(argc, argv);
+            //renderGL(argc, argv);
 
             
         } else if (key == 114) { //restart if 'r' is pressed
