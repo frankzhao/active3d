@@ -288,7 +288,7 @@ void depthMap(int iterations) {
                 }
                 
                 // write depth
-                if (count > 6) {
+                if (count == 6) {
                     destv = Vec3b(0,0, depth * ((int) (255 / iterations)) );
                     depthMask.at<uchar>(i,j) = depth;
                 }
