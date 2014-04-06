@@ -279,78 +279,78 @@ void release_memory() {
 /***************************
  *  Convert to point cloud *
  ***************************/
-
-void renderForeground() {
-    
-    //float cameraHeight = 1.6;
-    
-    // initialize the vector array
-    //GLfloat *points = (GLfloat*) calloc(fgMask.rows * fgMask.cols, sizeof(GLfloat));
-    //Vector3Df *points = (Vector3Df*) calloc(fgMask.rows * fgMask.cols, sizeof(float) * 3);
-    
-    int rows = fgMask.rows, cols = fgMask.cols;
-    
-    glBegin(GL_POINTS);
-    for (int i=0; i<rows; i++) {
-        for (int j=0; j<cols; j++) {
-            
-            // if the pixel is marked fg, set colour and add to array
-            if (fgMask.at<uchar>(i,j) == 1) {
-                // set colour
-                Vec3i pixel = imgWorkingCopy.at<Vec3i>(i,j);
-                glColor3i(pixel[2], pixel[1], pixel[0]);
-                
-                // init glVertex, x -> horiz, y -> height, z -> depth
-                glVertex3i(j, i, 10);
-            }
-        }
-    }
-    glEnd();
-}
-
-void setCamera() {
-    glTranslatef(0.0f,-0.75f, -2.0f);
-    glRotatef(0.0f, 0.0f, 1.0f, 0.0f);
-}
-
-void display() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
-    glBegin(GL_QUADS);
-    glVertex2f(-0.75f, -0.75f);
-    glVertex2f(0.75f, -0.75f);
-    glVertex2f(0.75f, 0.75f);
-    glVertex2f(-0.75f, 0.75f);
-    glEnd();
-    
-    //renderForeground();
-    
-    glutSwapBuffers();
-    
-}
-
-void reshape(int width, int height) {
-    glViewport(0, 0, width, height);
-}
-
-void idle() {
-    glutPostRedisplay();
-}
-
-void renderGL(int argc, char* argv[]) {
-    //glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-    glutInitWindowSize(img.rows, img.cols);
-    
-    glutCreateWindow("GLUT");
-    glutDisplayFunc(display);
-    //glutReshapeFunc(reshape);
-    //glutIdleFunc(idle);
-    
-    //display();
-    
-    glutMainLoop();
-}
+//
+//void renderForeground() {
+//    
+//    //float cameraHeight = 1.6;
+//    
+//    // initialize the vector array
+//    //GLfloat *points = (GLfloat*) calloc(fgMask.rows * fgMask.cols, sizeof(GLfloat));
+//    //Vector3Df *points = (Vector3Df*) calloc(fgMask.rows * fgMask.cols, sizeof(float) * 3);
+//    
+//    int rows = fgMask.rows, cols = fgMask.cols;
+//    
+//    glBegin(GL_POINTS);
+//    for (int i=0; i<rows; i++) {
+//        for (int j=0; j<cols; j++) {
+//            
+//            // if the pixel is marked fg, set colour and add to array
+//            if (fgMask.at<uchar>(i,j) == 1) {
+//                // set colour
+//                Vec3i pixel = imgWorkingCopy.at<Vec3i>(i,j);
+//                glColor3i(pixel[2], pixel[1], pixel[0]);
+//                
+//                // init glVertex, x -> horiz, y -> height, z -> depth
+//                glVertex3i(j, i, 10);
+//            }
+//        }
+//    }
+//    glEnd();
+//}
+//
+//void setCamera() {
+//    glTranslatef(0.0f,-0.75f, -2.0f);
+//    glRotatef(0.0f, 0.0f, 1.0f, 0.0f);
+//}
+//
+//void display() {
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//    
+//    glBegin(GL_QUADS);
+//    glVertex2f(-0.75f, -0.75f);
+//    glVertex2f(0.75f, -0.75f);
+//    glVertex2f(0.75f, 0.75f);
+//    glVertex2f(-0.75f, 0.75f);
+//    glEnd();
+//    
+//    //renderForeground();
+//    
+//    glutSwapBuffers();
+//    
+//}
+//
+//void reshape(int width, int height) {
+//    glViewport(0, 0, width, height);
+//}
+//
+//void idle() {
+//    glutPostRedisplay();
+//}
+//
+//void renderGL(int argc, char* argv[]) {
+//    //glutInit(&argc, argv);
+//    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+//    glutInitWindowSize(img.rows, img.cols);
+//    
+//    glutCreateWindow("GLUT");
+//    glutDisplayFunc(display);
+//    //glutReshapeFunc(reshape);
+//    //glutIdleFunc(idle);
+//    
+//    //display();
+//    
+//    glutMainLoop();
+//}
 
 /*********************
  *       Main        *
@@ -380,7 +380,7 @@ int main(int argc, char * argv[]) {
             setMouseCallback(windowName, NULL, NULL); // remove mouse callback
             interactiveGrabCut(REFINE_MASK); // run grabcut
             mode = MODE_IDLE;
-            depthMap(fgMask, imgWorkingCopy, 100, windowName, true);
+            depthMap(fgMask, imgWorkingCopy, 10, windowName, true);
             imshow(windowName, imgWorkingCopy);
             
             //renderGL(argc, argv);
@@ -392,7 +392,7 @@ int main(int argc, char * argv[]) {
         }
     }
     
-    destroyAllWindows();
+    //destroyAllWindows();
     release_memory();
     
     return 0;

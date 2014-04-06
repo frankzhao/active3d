@@ -24,6 +24,6 @@ int countNeighbours(Mat m, int v, int row, int col);
 
 // Generate depth map with specified iterations
 // depthMap(fgMask, drawDest, iterations, colorView)
-Mat depthMap(Mat mask, Mat dest, int iterations, const string &winname, bool color);
+void depthMap(Mat mask, Mat dest, int iterations, const string &winname, bool color);
 
 #endif

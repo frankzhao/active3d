@@ -101,7 +101,7 @@ int countNeighbours(Mat m, int v, int row, int col) {
 
 // Generate depth map with specified iterations
 // depthMap(fgMask, drawDest, iterations, colorView)
-Mat depthMap(Mat mask, Mat dest, int iterations, const string &winname, bool color) {
+void depthMap(Mat mask, Mat dest, int iterations, const string &winname, bool color) {
     assert(iterations > 0);
     assert(mask.size == dest.size);
     
@@ -120,7 +120,7 @@ Mat depthMap(Mat mask, Mat dest, int iterations, const string &winname, bool col
                 // count neighbouring pixels
                 if (prevMask.at<uchar>(i,j) == depth-1) {
                     count = countNeighbours(prevMask, depth-1, i, j);
-                    //printf("%d ", count);
+                    printf("%d ", count);
                 }
                 
                 // write depth
@@ -136,7 +136,7 @@ Mat depthMap(Mat mask, Mat dest, int iterations, const string &winname, bool col
             }
         }
     }
-    return depthMask;
+    //return depthMask;
     depthMask.release();
     prevMask.release();
     
