@@ -4,6 +4,7 @@
 //
 //  Created by Frank Zhao on 25/03/2014.
 //  Copyright (c) 2014 Frank Zhao. All rights reserved.
+//  <frank.zhao@anu.edu.au>
 //
 
 #ifndef ImageSegmentation_utility_h
@@ -20,5 +21,9 @@ int applyMask(Mat src, Mat mask, Mat dest);
 // Count how many of the 8 neighbouring pixels
 // are of a particular value (8-bit, 1-channel)
 int countNeighbours(Mat m, int v, int row, int col);
+
+// Generate depth map with specified iterations
+// depthMap(fgMask, drawDest, iterations, colorView)
+Mat depthMap(Mat mask, Mat dest, int iterations, const string &winname, bool color);
 
 #endif

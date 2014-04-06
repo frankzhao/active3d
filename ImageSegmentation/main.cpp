@@ -4,7 +4,26 @@
 //
 //  Created by Frank Zhao on 23/02/2014.
 //  Copyright (c) 2014 Frank Zhao. All rights reserved.
+//  <frank.zhao@anu.edu.au>
 //
+
+#ifdef WIN32
+#include <windows.h>
+#endif
+
+#include <stdlib.h>
+#include <iostream>
+#include <fstream>
+
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
+#include <GL/glut.h>
+#include <GL/glu.h>
+#include <GL/gl.h>
+#endif
 
 #define RECT_MASK 0
 #define REFINE_MASK 1
@@ -17,20 +36,10 @@
 #include <stdlib.h>
 #include "utility.h"
 
-// OpenGL
-//#ifdef __APPLE__
-//#include <GLUT/glut.h>
-//#include <OpenGL/gl.h>
-//#include <OpenGL/glu.h>
-//#else
-//#include <GL/glut.h>
-//#include <GL/glu.h>
-//#include <GL/gl.h>
-//#endif
-
 using namespace cv;
 using namespace std;
 
+string windowName = "Viewer";
 int key; // keyboard input
 int mode = 0; //current mode we are in
 int mouseX1 = 0, mouseY1 = 0, mouseX2 = 0, mouseY2 = 0;
@@ -91,7 +100,7 @@ static int interactiveGrabCut(int grabCutMode) {
         viewport = imgWorkingCopy.clone();
         rectangle(viewport, rect, Scalar(0,0,255));
         
-        imshow("Viewer", viewport);
+        imshow(windowName, viewport);
         
         // convert mask back to single channel for next iteration
         cvtColor(fgMask, fgMask, CV_BGR2GRAY);
@@ -143,7 +152,7 @@ static int interactiveGrabCut(int grabCutMode) {
         imgWorkingCopy.convertTo(imgWorkingCopy, CV_8UC3);
         mask.convertTo(mask, CV_8UC1);
         
-        imshow("Viewer", imgWorkingCopy);
+        imshow(windowName, imgWorkingCopy);
         
         fgModel.release();
         bgModel.release();
@@ -177,11 +186,11 @@ static void mousePaintEvent(int event, int x, int y, int, void*) {
                 circle(viewport, Point (x,y), brushRadius, Scalar(255,255,255), -1);
                 circle(refineMask, Point (x,y), brushRadius, GC_FGD, -1);
             }
-            imshow("Viewer", viewport);
+            imshow(windowName, viewport);
             break;
         case CV_EVENT_LBUTTONUP:
             drag = !drag;
-            imshow("Viewer", viewport);
+            imshow(windowName, viewport);
             break;
         case CV_EVENT_MOUSEMOVE:
             if (drag) {
@@ -192,7 +201,7 @@ static void mousePaintEvent(int event, int x, int y, int, void*) {
                     circle(viewport, Point (x,y), brushRadius, Scalar(255,255,255), -1);
                     circle(refineMask, Point (x,y), brushRadius, GC_FGD, -1);
                 }
-                imshow("Viewer", viewport);
+                imshow(windowName, viewport);
             }
             break;
         default:
@@ -214,18 +223,18 @@ static void mouseRectangleEvent(int event, int x, int y, int, void*) {
             mouseY2 = y;
             // printf("UP %d, %d\n", mouseY1, mouseY2);
             drag = !drag;
-            setMouseCallback("Viewer", NULL, NULL); // remove mouse callback
+            setMouseCallback(windowName, NULL, NULL); // remove mouse callback
             interactiveGrabCut(RECT_MASK); // run grabcut
             
             // Let the user define a refine mask in paint mode
-            setMouseCallback("Viewer", mousePaintEvent);
+            setMouseCallback(windowName, mousePaintEvent);
             mode = MODE_PAINTMODE;
             break;
         case CV_EVENT_MOUSEMOVE:
             if (drag) {
                 viewport = img.clone();
                 rectangle(viewport, Point(mouseX1, mouseY1), Point(x, y), Scalar(0,255,0));
-                imshow("Viewer", viewport);
+                imshow(windowName, viewport);
             }
             break;
         default:
@@ -245,12 +254,12 @@ int initialize_image() {
     }
     
     // Prepare window
-    namedWindow("Viewer", CV_WINDOW_AUTOSIZE);
-    imshow("Viewer", img);
+    namedWindow(windowName, CV_WINDOW_AUTOSIZE);
+    imshow(windowName, img);
     waitKey(200);
     
     // Let the user define a rectangle
-    setMouseCallback("Viewer", mouseRectangleEvent);
+    setMouseCallback(windowName, mouseRectangleEvent);
     mode = MODE_RECTMODE;
     return 0;
 }
@@ -266,77 +275,27 @@ void release_memory() {
     refineMask.release();
 }
 
-// Generate depth map with specified iterations
-void depthMap(int iterations) {
+/***************************
+ *  Convert to point cloud *
+ ***************************/
+
+void convertForeground() {
+    // initialize the vector array
     
-    Mat depthMask = fgMask.clone();
-    Mat prevMask = Mat(fgMask.rows, fgMask.cols, CV_8UC1, double(0)); // mask from previous iteration
-    int rows = depthMask.rows, cols = depthMask.cols;
-    
-    //apply depth contour
-    int count = 0;
-    for (int depth=2; depth<iterations; depth++) {
-        prevMask = depthMask.clone();
-        for (int i=0; i<rows; i++) {
-            for (int j=0; j<cols; j++) {
-                Vec3b& destv = imgWorkingCopy.at<Vec3b>(i,j);
+    int rows = fgMask.rows, cols = fgMask.cols;
+    for (int i=0; i<rows; i++) {
+        for (int j=0; j<cols; j++) {
+            
+            // if the pixel is marked fg, set colour and add to array
+            if (fgMask.at<uchar>(i,j) == 1) {
+                Vec3i pixel = imgWorkingCopy.at<Vec3i>(i,j);
                 
-                // count neighbouring pixels
-                if (prevMask.at<uchar>(i,j) == depth-1) {
-                    count = countNeighbours(prevMask, depth-1, i, j);
-                    //printf("%d ", count);
-                }
-                
-                // write depth
-                if (count > 6) {
-                    destv = Vec3b(0,0, depth * ((int) (255 / iterations)) );
-                    depthMask.at<uchar>(i,j) = depth;
-                }
+                //set colour
+                glColor3i(pixel[2], pixel[1], pixel[0]);
                 
             }
         }
     }
-    depthMask.release();
-    prevMask.release();
-    
-/*
-    
-    vector< vector<Point> > contours;
-    vector<Vec4i> contourHierarchy;
-    Mat bwImageMasked;
-    cvtColor(imgWorkingCopy, bwImageMasked, CV_BGR2GRAY);
-    
-    Mat cannyOut;
-    Canny(imgWorkingCopy, cannyOut, 100, 200, 3);
-    
-    imshow("Viewer", cannyOut);
-    waitKey();
-    
-//    // increase image contrast
-//    /// Do the operation new_image(i,j) = alpha*image(i,j) + beta
-//    for( int y = 0; y < image.rows; y++ )
-//    { for( int x = 0; x < image.cols; x++ )
-//    { for( int c = 0; c < 3; c++ )
-//    {
-//        new_image.at<Vec3b>(y,x)[c] =
-//        saturate_cast<uchar>( alpha*( image.at<Vec3b>(y,x)[c] ) + beta );
-//    }
-//    }
-//    }
-    
-    findContours(bwImageMasked, contours, contourHierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
-    
-    drawContours(imgWorkingCopy, contours, -1, Scalar(0,0,255));
-    
-//    // random colour for each contour hierarchy
-//    int idx = 0;
-//    for( ; idx >= 0; idx = contourHierarchy[idx][0]) {
-//        Scalar color( rand()&255, rand()&255, rand()&255 );
-//        drawContours( imgWorkingCopy, contours, idx, color, 2, 8, contourHierarchy, 2);
-//    }
-    
-*/
-    imshow("Viewer", imgWorkingCopy);
 }
 
 /*********************
@@ -364,10 +323,11 @@ int main(int argc, const char * argv[])
             paintFG = !paintFG;
         } else if (key == 13 && mode == MODE_PAINTMODE) {
             // enter key to run refine mask
-            setMouseCallback("Viewer", NULL, NULL); // remove mouse callback
+            setMouseCallback(windowName, NULL, NULL); // remove mouse callback
             interactiveGrabCut(REFINE_MASK); // run grabcut
             mode = MODE_IDLE;
-            depthMap(100);
+            depthMap(fgMask, imgWorkingCopy, 100, windowName, true);
+            imshow(windowName, imgWorkingCopy);
         } else if (key == 114) { //restart if 'r' is pressed
             release_memory();
             initialize_image();

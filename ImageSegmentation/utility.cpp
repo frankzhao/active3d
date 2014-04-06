@@ -4,6 +4,7 @@
 //
 //  Created by Frank Zhao on 25/03/2014.
 //  Copyright (c) 2014 Frank Zhao. All rights reserved.
+//  <frank.zhao@anu.edu.au>
 //
 
 #include "utility.h"
@@ -21,10 +22,9 @@ using namespace std;
 //TODO add option to specify placement location and blending coefficients
 int overlayImage(Mat src, Mat overlay, Mat dest) {
     
-    if ( (src.rows * src.cols) != (overlay.rows * overlay.cols) ) {
-        cerr << "OverlayImage: source and overlay imaged are not the same size!" << endl;
-        return 1;
-    }
+    // ensure the source and overlay/dest have the same size
+    assert ( (src.rows * src.cols) == (dest.rows * dest.cols) );
+    assert ( (src.rows * src.cols) == (overlay.rows * overlay.cols) );
     
     for (int i=0; i<src.rows; i++) {
         for (int j=0; j<src.cols; j++) {
@@ -38,6 +38,11 @@ int overlayImage(Mat src, Mat overlay, Mat dest) {
 
 // apply a mask with unmasked areas in alpha=0
 int applyMask(Mat src, Mat mask, Mat dest) {
+    
+    assert(src.size > 0);
+    assert(mask.size > 0);
+    assert(dest.size > 0);
+    assert( (src.size == mask.size) && (mask.size == dest.size) );
     
     for (int i=0; i<src.rows; i++) {
         for (int j=0; j<src.cols; j++) {
@@ -65,6 +70,10 @@ int applyMask(Mat src, Mat mask, Mat dest) {
 // Count how many of the 8 neighbouring pixels
 // are of a particular value (8-bit, 1-channel)
 int countNeighbours(Mat m, int v, int row, int col) {
+    
+    assert(m.size > 0);
+    
+    
     int count = 0;
             
     // make sure indicies are within bounds
@@ -88,4 +97,86 @@ int countNeighbours(Mat m, int v, int row, int col) {
             count++;
     }
     return count;
+}
+
+// Generate depth map with specified iterations
+// depthMap(fgMask, drawDest, iterations, colorView)
+Mat depthMap(Mat mask, Mat dest, int iterations, const string &winname, bool color) {
+    assert(iterations > 0);
+    assert(mask.size == dest.size);
+    
+    Mat depthMask = mask.clone();
+    Mat prevMask = Mat(mask.rows, mask.cols, CV_8UC1, double(0)); // mask from previous iteration
+    int rows = depthMask.rows, cols = depthMask.cols;
+    
+    //apply depth contour
+    int count = 0;
+    for (int depth=2; depth<iterations; depth++) {
+        prevMask = depthMask.clone();
+        for (int i=0; i<rows; i++) {
+            for (int j=0; j<cols; j++) {
+                Vec3i& destv = dest.at<Vec3i>(i,j);
+                
+                // count neighbouring pixels
+                if (prevMask.at<uchar>(i,j) == depth-1) {
+                    count = countNeighbours(prevMask, depth-1, i, j);
+                    //printf("%d ", count);
+                }
+                
+                // write depth
+                if (count == 8) {
+                    // draw depth as shades of red if specified
+                    if (color) {
+                        destv = Vec3b(0,0, depth * ((int) (255 / iterations)) );
+                    }
+                    
+                    depthMask.at<uchar>(i,j) = depth;
+                }
+                
+            }
+        }
+    }
+    return depthMask;
+    depthMask.release();
+    prevMask.release();
+    
+    /*
+     // test using contours to generate depth
+     
+     vector< vector<Point> > contours;
+     vector<Vec4i> contourHierarchy;
+     Mat bwImageMasked;
+     cvtColor(imgWorkingCopy, bwImageMasked, CV_BGR2GRAY);
+     
+     Mat cannyOut;
+     Canny(imgWorkingCopy, cannyOut, 100, 200, 3);
+     
+     imshow("Viewer", cannyOut);
+     waitKey();
+     
+     //    // increase image contrast
+     //    /// Do the operation new_image(i,j) = alpha*image(i,j) + beta
+     //    for( int y = 0; y < image.rows; y++ )
+     //    { for( int x = 0; x < image.cols; x++ )
+     //    { for( int c = 0; c < 3; c++ )
+     //    {
+     //        new_image.at<Vec3b>(y,x)[c] =
+     //        saturate_cast<uchar>( alpha*( image.at<Vec3b>(y,x)[c] ) + beta );
+     //    }
+     //    }
+     //    }
+     
+     findContours(bwImageMasked, contours, contourHierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
+     
+     drawContours(imgWorkingCopy, contours, -1, Scalar(0,0,255));
+     
+     //    // random colour for each contour hierarchy
+     //    int idx = 0;
+     //    for( ; idx >= 0; idx = contourHierarchy[idx][0]) {
+     //        Scalar color( rand()&255, rand()&255, rand()&255 );
+     //        drawContours( imgWorkingCopy, contours, idx, color, 2, 8, contourHierarchy, 2);
+     //    }
+     
+     */
+    imshow(winname, dest);
 }
