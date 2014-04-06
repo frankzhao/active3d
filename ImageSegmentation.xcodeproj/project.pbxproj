@@ -11,6 +11,7 @@
 		0125A5B018E1B4E200004934 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0125A5AF18E1B4E200004934 /* OpenGL.framework */; };
 		0125A5B218E1B4F200004934 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0125A5B118E1B4F200004934 /* GLUT.framework */; };
 		0125A5B418E1B4FB00004934 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0125A5B318E1B4FB00004934 /* Cocoa.framework */; };
+		015743BC18F0F3E9002F5FFA /* data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 015743BA18F0F3E9002F5FFA /* data.cpp */; };
 		01DD1FC718B9FC5200D12CF0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01DD1FC618B9FC5200D12CF0 /* main.cpp */; };
 		01DD1FC918B9FC5200D12CF0 /* ImageSegmentation.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 01DD1FC818B9FC5200D12CF0 /* ImageSegmentation.1 */; };
 		01DD1FE218BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 01DD1FE018BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib */; };
@@ -37,6 +38,8 @@
 		0125A5AF18E1B4E200004934 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		0125A5B118E1B4F200004934 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 		0125A5B318E1B4FB00004934 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		015743BA18F0F3E9002F5FFA /* data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = data.cpp; sourceTree = "<group>"; };
+		015743BB18F0F3E9002F5FFA /* data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = data.h; sourceTree = "<group>"; };
 		01DD1FC318B9FC5200D12CF0 /* ImageSegmentation */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ImageSegmentation; sourceTree = BUILT_PRODUCTS_DIR; };
 		01DD1FC618B9FC5200D12CF0 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		01DD1FC818B9FC5200D12CF0 /* ImageSegmentation.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = ImageSegmentation.1; sourceTree = "<group>"; };
@@ -91,6 +94,8 @@
 				0125A5AA18E1A91C00004934 /* utility.cpp */,
 				0125A5A918E1A90800004934 /* utility.h */,
 				01DD1FC818B9FC5200D12CF0 /* ImageSegmentation.1 */,
+				015743BA18F0F3E9002F5FFA /* data.cpp */,
+				015743BB18F0F3E9002F5FFA /* data.h */,
 			);
 			path = ImageSegmentation;
 			sourceTree = "<group>";
@@ -148,6 +153,7 @@
 			files = (
 				0125A5AB18E1A91C00004934 /* utility.cpp in Sources */,
 				01DD1FC718B9FC5200D12CF0 /* main.cpp in Sources */,
+				015743BC18F0F3E9002F5FFA /* data.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -226,6 +232,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LIBRARY = "libc++";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/Library/Frameworks,
+				);
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -245,6 +255,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LIBRARY = "libc++";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/Library/Frameworks,
+				);
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",

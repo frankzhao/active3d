@@ -15,6 +15,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <opencv2/opencv.hpp>
+
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #include <OpenGL/gl.h>
@@ -25,6 +27,11 @@
 #include <GL/gl.h>
 #endif
 
+//#include "wx.h"
+//#include <glcanvas.h>
+#include "utility.h"
+//#include "data.h"
+
 #define RECT_MASK 0
 #define REFINE_MASK 1
 
@@ -32,9 +39,6 @@
 #define MODE_RECTMODE 1
 #define MODE_PAINTMODE 2
 
-#include <opencv2/opencv.hpp>
-#include <stdlib.h>
-#include "utility.h"
 
 using namespace cv;
 using namespace std;
@@ -47,7 +51,7 @@ bool drag = false, drawing = true, paintFG = false;
 
 Mat img, imgWorkingCopy, viewport;
 Mat mask, refineMask, fgMask, fgModel, bgModel;
-Rect rect;
+cv::Rect rect;
 
 
 /*********************
@@ -69,7 +73,7 @@ static int interactiveGrabCut(int grabCutMode) {
         int rectArea = abs((mouseX1 - mouseX2) * (mouseY2 - mouseY1)) > 0;
         assert(rectArea > 0 && rectArea < (img.cols * img.rows) ); // check that the rectangle is valid
             
-        rect = Rect( Point(mouseX1, mouseY1), Point (mouseX2, mouseY2) );
+        rect = cv::Rect( cv::Point(mouseX1, mouseY1), cv::Point (mouseX2, mouseY2) );
         
         // GC_INIT_WITH_RECT -> using rectangle
         // GC_INIT_WITH_MASK -> using mask
@@ -131,7 +135,7 @@ static int interactiveGrabCut(int grabCutMode) {
         
         imgWorkingCopy = img.clone();
         
-        grabCut(img, mask, Rect(), bgModel, fgModel, 5, GC_INIT_WITH_MASK); // grabcut with new mask
+        grabCut(img, mask, cv::Rect(), bgModel, fgModel, 5, GC_INIT_WITH_MASK); // grabcut with new mask
         
         for (int i=0; i<img.rows; i++) {
             for (int j=0; j<img.cols; j++) {
@@ -180,11 +184,11 @@ static void mousePaintEvent(int event, int x, int y, int, void*) {
         case CV_EVENT_LBUTTONDOWN:
             drag = !drag;
             if (!paintFG) {
-                circle(viewport, Point (x,y), brushRadius, Scalar(150,150,150), -1);
-                circle(refineMask, Point (x,y), brushRadius, GC_BGD, -1);
+                circle(viewport, cv::Point (x,y), brushRadius, Scalar(150,150,150), -1);
+                circle(refineMask, cv::Point (x,y), brushRadius, GC_BGD, -1);
             } else if (paintFG) {
-                circle(viewport, Point (x,y), brushRadius, Scalar(255,255,255), -1);
-                circle(refineMask, Point (x,y), brushRadius, GC_FGD, -1);
+                circle(viewport, cv::Point (x,y), brushRadius, Scalar(255,255,255), -1);
+                circle(refineMask, cv::Point (x,y), brushRadius, GC_FGD, -1);
             }
             imshow(windowName, viewport);
             break;
@@ -195,11 +199,11 @@ static void mousePaintEvent(int event, int x, int y, int, void*) {
         case CV_EVENT_MOUSEMOVE:
             if (drag) {
                 if (!paintFG) {
-                    circle(viewport, Point (x,y), brushRadius, Scalar(150,150,150), -1);
-                    circle(refineMask, Point (x,y), brushRadius, GC_BGD, -1);
+                    circle(viewport, cv::Point (x,y), brushRadius, Scalar(150,150,150), -1);
+                    circle(refineMask, cv::Point (x,y), brushRadius, GC_BGD, -1);
                 } else if (paintFG) {
-                    circle(viewport, Point (x,y), brushRadius, Scalar(255,255,255), -1);
-                    circle(refineMask, Point (x,y), brushRadius, GC_FGD, -1);
+                    circle(viewport, cv::Point (x,y), brushRadius, Scalar(255,255,255), -1);
+                    circle(refineMask, cv::Point (x,y), brushRadius, GC_FGD, -1);
                 }
                 imshow(windowName, viewport);
             }
@@ -233,7 +237,7 @@ static void mouseRectangleEvent(int event, int x, int y, int, void*) {
         case CV_EVENT_MOUSEMOVE:
             if (drag) {
                 viewport = img.clone();
-                rectangle(viewport, Point(mouseX1, mouseY1), Point(x, y), Scalar(0,255,0));
+                rectangle(viewport, cv::Point(mouseX1, mouseY1), cv::Point(x, y), Scalar(0,255,0));
                 imshow(windowName, viewport);
             }
             break;
@@ -279,31 +283,82 @@ void release_memory() {
  *  Convert to point cloud *
  ***************************/
 
-void convertForeground() {
+void renderForeground() {
+    
+    //float cameraHeight = 1.6;
+    
     // initialize the vector array
+    //GLfloat *points = (GLfloat*) calloc(fgMask.rows * fgMask.cols, sizeof(GLfloat));
+    //Vector3Df *points = (Vector3Df*) calloc(fgMask.rows * fgMask.cols, sizeof(float) * 3);
     
     int rows = fgMask.rows, cols = fgMask.cols;
+    
+    glBegin(GL_POINTS);
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
             
             // if the pixel is marked fg, set colour and add to array
             if (fgMask.at<uchar>(i,j) == 1) {
+                // set colour
                 Vec3i pixel = imgWorkingCopy.at<Vec3i>(i,j);
-                
-                //set colour
                 glColor3i(pixel[2], pixel[1], pixel[0]);
                 
+                // init glVertex, x -> horiz, y -> height, z -> depth
+                glVertex3i(j, i, 10);
             }
         }
     }
+    glEnd();
+}
+
+void setCamera() {
+    glTranslatef(0.0f,-0.75f, -2.0f);
+    glRotatef(0.0f, 0.0f, 1.0f, 0.0f);
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    glBegin(GL_QUADS);
+    glVertex2f(-0.75f, -0.75f);
+    glVertex2f(0.75f, -0.75f);
+    glVertex2f(0.75f, 0.75f);
+    glVertex2f(-0.75f, 0.75f);
+    glEnd();
+    
+    //renderForeground();
+    
+    glutSwapBuffers();
+    
+}
+
+void reshape(int width, int height) {
+    glViewport(0, 0, width, height);
+}
+
+void idle() {
+    glutPostRedisplay();
+}
+
+void renderGL(int argc, char* argv[]) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+    glutInitWindowSize(img.rows, img.cols);
+    
+    glutCreateWindow("GLUT");
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    glutIdleFunc(idle);
+    
+    glutMainLoop();
 }
 
 /*********************
  *       Main        *
  *********************/
 
-int main(int argc, const char * argv[])
-{
+int main(int argc, char * argv[]) {
+
     int retval = initialize_image();
     
     if (retval == -1) {
@@ -328,12 +383,17 @@ int main(int argc, const char * argv[])
             mode = MODE_IDLE;
             depthMap(fgMask, imgWorkingCopy, 100, windowName, true);
             imshow(windowName, imgWorkingCopy);
+            
+            renderGL(argc, argv);
+
+            
         } else if (key == 114) { //restart if 'r' is pressed
             release_memory();
             initialize_image();
         }
     }
     
+    destroyAllWindows();
     release_memory();
     
     return 0;
