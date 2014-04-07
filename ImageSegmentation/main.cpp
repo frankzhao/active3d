@@ -266,6 +266,30 @@ void release_memory() {
     refineMask.release();
 }
 
+
+/* openGL */
+//this is the "display" void, we will use it to clear the screen:
+void display (void){
+    glClearColor (0.0, 0.0, 0.0, 1.0);
+    glClear (GL_COLOR_BUFFER_BIT);
+    glLoadIdentity();
+    gluLookAt (0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    square();
+    glFlush();
+}
+
+//next we will create our window and display the "display" void:
+int main (int argc, char **argv){
+    glutInit (&argc, argv);
+    glutInitDisplayMode (GLUT_SINGLE);
+    glutInitWindowSize (500,500);
+    glutInitWindowPosition (100, 100);
+    glutCreateWindow ("Simple Window");
+    glutDisplayFunc (display);
+    glutMainLoop();
+    return 0;
+}
+
 /*********************
  *       Main        *
  *********************/
