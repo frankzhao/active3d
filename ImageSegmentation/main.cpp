@@ -267,13 +267,44 @@ void release_memory() {
 }
 
 
+void renderForeground() {
+
+    //float cameraHeight = 1.6;
+
+    // initialize the vector array
+    //GLfloat *points = (GLfloat*) calloc(fgMask.rows * fgMask.cols, sizeof(GLfloat));
+    //Vector3Df *points = (Vector3Df*) calloc(fgMask.rows * fgMask.cols, sizeof(float) * 3);
+
+    int rows = fgMask.rows, cols = fgMask.cols;
+
+    for (int i=0; i<rows; i++) {
+        for (int j=0; j<cols; j++) {
+
+            // if the pixel is marked fg, set colour and add to array
+            if (fgMask.at<uchar>(i,j) == 1) {
+                // set colour
+                Vec3i pixel = imgWorkingCopy.at<Vec3i>(i,j);
+                //glColor3i(pixel[2], pixel[1], pixel[0]);
+
+                // init glVertex, x -> horiz, y -> height, z -> depth
+                glVertex3f(j, i, 0);
+            }
+        }
+    }
+}
+
 /* openGL */
 //this is the "display" void, we will use it to clear the screen:
-void display (void){
+void display (){
     
     glClear( GL_COLOR_BUFFER_BIT);
     glColor3f(0.0, 1.0, 0.0);
-
+    
+    glBegin(GL_POINTS);
+    //glVertex3f(2.0, 4.0, 0.0);
+    //glVertex3f(8.0, 4.0, 0.0);
+    renderForeground();
+    glEnd();
     
 //    glBegin(GL_POLYGON);
 //    glVertex3f(2.0, 4.0, 0.0);
@@ -282,15 +313,13 @@ void display (void){
 //    glVertex3f(2.0, 6.0, 0.0);
 //    glEnd();
     
-    glFlush();
-    
 //    glClearColor (0.0, 0.0, 0.0, 1.0);
 //    glClear (GL_COLOR_BUFFER_BIT);
 //    glLoadIdentity();
 //
 //    gluLookAt (0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 //    glRectd(0.75, 0.75, -0.75, -0.75);
-//    glFlush();
+    glFlush();
 }
 
 //next we will create our window and display the "display" void:
@@ -298,13 +327,14 @@ int renderGL (int argc, char **argv){
     glutInitDisplayMode ( GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
     
     glutInitWindowPosition(100,100);
-    glutInitWindowSize(300,300);
+    glutInitWindowSize(img.cols,img.rows);
     glutCreateWindow ("GLUT");
     
     glClearColor(0.0, 0.0, 0.0, 0.0);         // black background
     glMatrixMode(GL_PROJECTION);              // setup viewing projection
     glLoadIdentity();                           // start with identity matrix
-    glOrtho(0.0, 10.0, 0.0, 10.0, -1.0, 1.0);   // setup a 10x10x2 viewing world
+    //glOrtho(0.0, 10.0, 0.0, 10.0, -1.0, 1.0);   // setup a 10x10x2 viewing world
+    glOrtho(0.0, img.cols, 0.0, img.rows, -1.0, 1.0);   // setup a 10x10x2 viewing world
     
     glutDisplayFunc(display);
     glutMainLoop();
