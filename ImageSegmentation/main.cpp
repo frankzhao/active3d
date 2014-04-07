@@ -18,15 +18,15 @@
 #include "utility.h"
 
 // OpenGL
-//#ifdef __APPLE__
-//#include <GLUT/glut.h>
-//#include <OpenGL/gl.h>
-//#include <OpenGL/glu.h>
-//#else
-//#include <GL/glut.h>
-//#include <GL/glu.h>
-//#include <GL/gl.h>
-//#endif
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
+#include <GL/glut.h>
+#include <GL/glu.h>
+#include <GL/gl.h>
+#endif
 
 using namespace cv;
 using namespace std;
@@ -270,23 +270,44 @@ void release_memory() {
 /* openGL */
 //this is the "display" void, we will use it to clear the screen:
 void display (void){
-    glClearColor (0.0, 0.0, 0.0, 1.0);
-    glClear (GL_COLOR_BUFFER_BIT);
-    glLoadIdentity();
-    gluLookAt (0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-    square();
+    
+    glClear( GL_COLOR_BUFFER_BIT);
+    glColor3f(0.0, 1.0, 0.0);
+    glBegin(GL_POLYGON);
+    glVertex3f(2.0, 4.0, 0.0);
+    glVertex3f(8.0, 4.0, 0.0);
+    glVertex3f(8.0, 6.0, 0.0);
+    glVertex3f(2.0, 6.0, 0.0);
+    glEnd();
     glFlush();
+    
+//    glClearColor (0.0, 0.0, 0.0, 1.0);
+//    glClear (GL_COLOR_BUFFER_BIT);
+//    glLoadIdentity();
+//
+//    gluLookAt (0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+//    glRectd(0.75, 0.75, -0.75, -0.75);
+//    glFlush();
 }
 
 //next we will create our window and display the "display" void:
-int main (int argc, char **argv){
-    glutInit (&argc, argv);
-    glutInitDisplayMode (GLUT_SINGLE);
-    glutInitWindowSize (500,500);
-    glutInitWindowPosition (100, 100);
-    glutCreateWindow ("Simple Window");
-    glutDisplayFunc (display);
+int renderGL (int argc, char **argv){
+    printf("hello world\n");
+    glutInit(&argc, argv);
+    glutInitDisplayMode ( GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
+    
+    glutInitWindowPosition(100,100);
+    glutInitWindowSize(300,300);
+    glutCreateWindow ("square");
+    
+    glClearColor(0.0, 0.0, 0.0, 0.0);         // black background
+    glMatrixMode(GL_PROJECTION);              // setup viewing projection
+    glLoadIdentity();                           // start with identity matrix
+    glOrtho(0.0, 10.0, 0.0, 10.0, -1.0, 1.0);   // setup a 10x10x2 viewing world
+    
+    glutDisplayFunc(display);
     glutMainLoop();
+    
     return 0;
 }
 
@@ -294,8 +315,10 @@ int main (int argc, char **argv){
  *       Main        *
  *********************/
 
-int main(int argc, const char * argv[])
-{
+int main(int argc, char * argv[]) {
+    // initialise GLUT window
+    glutInit (&argc, argv);
+    
     int retval = initialize_image();
     
     if (retval == -1) {
@@ -319,6 +342,11 @@ int main(int argc, const char * argv[])
             interactiveGrabCut(REFINE_MASK); // run grabcut
             mode = MODE_IDLE;
             depthMap(fgMask, viewport, "Viewer", 100, true);
+            
+            cvDestroyAllWindows();
+            
+            renderGL(argc, argv);
+            
         } else if (key == 114) { //restart if 'r' is pressed
             release_memory();
             initialize_image();
