@@ -72,7 +72,7 @@ int countNeighbours(Mat m, int v, int row, int col) {
         // Check whether neighbouring pixels are v
         if (m.at<uchar>(row+1, col-1) == v)
             count++;
-        if(m.at<uchar>(row+1, col) == v)
+        if (m.at<uchar>(row+1, col) == v)
             count++;
         if (m.at<uchar>(row+1, col+1) == v)
             count++;

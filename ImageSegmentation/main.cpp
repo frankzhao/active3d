@@ -283,11 +283,13 @@ void renderForeground() {
             // if the pixel is marked fg, set colour and add to array
             if (fgMask.at<uchar>(i,j) == 1) {
                 // set colour
-                Vec3i pixel = imgWorkingCopy.at<Vec3i>(i,j);
-                //glColor3i(pixel[2], pixel[1], pixel[0]);
+                Vec3b pixel = imgWorkingCopy.at<Vec3b>(i,j);
+                glColor3b(pixel[2], pixel[1], pixel[0]);
+                //printf("%d %d %d\n", pixel[2], pixel[1], pixel[0]);
 
                 // init glVertex, x -> horiz, y -> height, z -> depth
-                glVertex3f(j, i, 0);
+                // OpenGl stores pixels upside down to OpenCV
+                glVertex3f((GLfloat) j, (GLfloat) rows - i, (GLfloat) 0);
             }
         }
     }
@@ -298,7 +300,7 @@ void renderForeground() {
 void display (){
     
     glClear( GL_COLOR_BUFFER_BIT);
-    glColor3f(0.0, 1.0, 0.0);
+    //glColor3f(0.0, 1.0, 0.0);
     
     glBegin(GL_POINTS);
     //glVertex3f(2.0, 4.0, 0.0);
@@ -324,9 +326,10 @@ void display (){
 
 //next we will create our window and display the "display" void:
 int renderGL (int argc, char **argv){
-    glutInitDisplayMode ( GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
+    //glutInitDisplayMode ( GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitDisplayMode ( GLUT_SINGLE | GLUT_RGB);
     
-    glutInitWindowPosition(100,100);
+    glutInitWindowPosition(0,0);
     glutInitWindowSize(img.cols,img.rows);
     glutCreateWindow ("GLUT");
     
@@ -372,7 +375,7 @@ int main(int argc, char * argv[]) {
             setMouseCallback("Viewer", NULL, NULL); // remove mouse callback
             interactiveGrabCut(REFINE_MASK); // run grabcut
             mode = MODE_IDLE;
-            depthMap(fgMask, viewport, "Viewer", 100, true);
+            depthMap(fgMask, imgWorkingCopy, "Viewer", 100, false);
             
             cvDestroyAllWindows();
             
