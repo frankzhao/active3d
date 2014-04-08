@@ -13,6 +13,8 @@
 #define MODE_RECTMODE 1
 #define MODE_PAINTMODE 2
 
+#define PI 3.14159265
+
 #include <opencv2/opencv.hpp>
 #include <stdlib.h>
 #include "utility.h"
@@ -276,6 +278,7 @@ void renderForeground() {
     float renderDepth = (worldDepthMax - worldDepthMin);
     int depthValue; // depth value from mask
     float depth; // normalised depth
+    Coord new_point;
 
     // initialize the vector array
     //GLfloat *points = (GLfloat*) calloc(fgMask.rows * fgMask.cols, sizeof(GLfloat));
@@ -305,10 +308,12 @@ void renderForeground() {
                 // OpenGl stores pixels upside down to OpenCV
                 
                 /* EXPERIMENTAL - rotate about y axis */
+                new_point = rot(j, rows - i, depth, PI/8.0);
+                glVertex3f( (GLfloat) new_point.x, (GLfloat) new_point.y, (GLfloat) (new_point.z) );
+                printf("(%f, %f, %f)\n", new_point.x, new_point.y, new_point.z);
                 
-                
-                glVertex3f( (GLfloat) j, (GLfloat) rows - i, (GLfloat) depth );
-                printf("%d %f\n", depthValue, depth);
+                //glVertex3f( (GLfloat) j, (GLfloat) rows - i, (GLfloat) depth );
+                //printf("%d %f\n", depthValue, depth);
             }
         }
     }
@@ -319,28 +324,11 @@ void renderForeground() {
 void display (){
     
     glClear( GL_COLOR_BUFFER_BIT);
-    //glColor3f(0.0, 1.0, 0.0);
     
     glBegin(GL_POINTS);
-    //glVertex3f(2.0, 4.0, 0.0);
-    //glVertex3f(8.0, 4.0, 0.0);
-    
     renderForeground();
     glEnd();
-    
-//    glBegin(GL_POLYGON);
-//    glVertex3f(2.0, 4.0, 0.0);
-//    glVertex3f(8.0, 4.0, 0.0);
-//    glVertex3f(8.0, 6.0, 0.0);
-//    glVertex3f(2.0, 6.0, 0.0);
-//    glEnd();
-    
-//    glClearColor (0.0, 0.0, 0.0, 1.0);
-//    glClear (GL_COLOR_BUFFER_BIT);
-//    glLoadIdentity();
-//
-//    gluLookAt (0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-//    glRectd(0.75, 0.75, -0.75, -0.75);
+
     glFlush();
 }
 

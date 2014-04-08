@@ -119,7 +119,7 @@ Mat depthMap(Mat mask, Mat dest, const string &winname, int iterations, bool ren
                     }
                     depthMask.at<uchar>(i,j) = depth;
                 }
-                
+
             }
         }
     }
@@ -133,17 +133,6 @@ Mat depthMap(Mat mask, Mat dest, const string &winname, int iterations, bool ren
 }
 
 /* EXPERIMENTAL - rotate about y axis */
-class Coord {
-    float x, y, z;
-
-public:
-    Coord(float x_c, float y_c, float z_c) {
-        x = x_c;
-        y = y_c;
-        z = z_c;
-    }
-};
-
 Coord rot(float x, float y, float z, float angle) {
     float x_new, y_new, z_new;
     // calculate rotation

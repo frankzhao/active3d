@@ -24,4 +24,22 @@ int countNeighbours(Mat m, int v, int row, int col);
 // Generate depth map with specified iterations
 Mat depthMap(Mat mask, Mat dest, const string &winname, int iterations, bool render);
 
+// Class to store a 3D coordinate
+class Coord {
+public:
+    Coord() {}
+public:
+    float x, y, z;
+    
+public:
+    Coord(float x_c, float y_c, float z_c) {
+        x = x_c;
+        y = y_c;
+        z = z_c;
+    }
+};
+
+// Rotate about Y axis
+Coord rot(float x, float y, float z, float angle);
+
 #endif
