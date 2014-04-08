@@ -40,6 +40,6 @@ public:
 };
 
 // Rotate about Y axis
-Coord rot(float x, float y, float z, float angle);
+Coord rot(float x, float y, float z, float r_x, float r_y, float r_z);
 
 #endif

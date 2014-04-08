@@ -272,7 +272,7 @@ void release_memory() {
 }
 
 
-void renderForeground() {
+void renderForeground(float r_x, float r_y, float r_z) {
 
     //float cameraHeight = 1.6;
     float renderDepth = (worldDepthMax - worldDepthMin);
@@ -308,7 +308,7 @@ void renderForeground() {
                 // OpenGl stores pixels upside down to OpenCV
                 
                 /* EXPERIMENTAL - rotate about y axis */
-                new_point = rot(j, rows - i, depth, PI/4);
+                new_point = rot(j, rows - i, depth, r_x, r_y, r_z);
                 glVertex3f( (GLfloat) new_point.x, (GLfloat) new_point.y, (GLfloat) (new_point.z)/rows );
                 //printf("(%f, %f, %f)\n", new_point.x, new_point.y, new_point.z);
                 
@@ -326,7 +326,7 @@ void display (){
     glClear( GL_COLOR_BUFFER_BIT);
     
     glBegin(GL_POINTS);
-    renderForeground();
+    renderForeground(0,0,PI/4);
     glEnd();
 
     glFlush();

@@ -132,13 +132,24 @@ Mat depthMap(Mat mask, Mat dest, const string &winname, int iterations, bool ren
     return depthMask;
 }
 
-/* EXPERIMENTAL - rotate about y axis */
-Coord rot(float x, float y, float z, float angle) {
+/* EXPERIMENTAL - rotate angle in radians*/
+Coord rot(float x, float y, float z, float r_x, float r_y, float r_z) {
     float x_new, y_new, z_new;
-    // calculate rotation
-    x_new = x*cos(angle) - z*sin(angle);
+    
+    // rotate x
+    x_new = x;
+    y_new = y*cos(r_x) + z*sin(r_x);
+    z_new = z*cos(r_x) - sin(r_y);
+    
+    // rotate y
+    x_new = x*cos(r_y) - z*sin(r_y);
     y_new = y;
-    z_new = x*sin(angle) + z*cos(angle);
+    z_new = x*sin(r_y) + z*cos(r_y);
+    
+    // rotate z
+    x_new = x*cos(r_z) + y*sin(r_z);
+    y_new = y*cos(r_z) - x*sin(r_z);
+    z_new = z;
         
     Coord coord = Coord(x_new, y_new, z_new);
     
