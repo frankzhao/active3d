@@ -37,8 +37,11 @@ int mouseX1 = 0, mouseY1 = 0, mouseX2 = 0, mouseY2 = 0;
 bool drag = false, drawing = true, paintFG = false;
 
 Mat img, imgWorkingCopy, viewport;
-Mat mask, refineMask, fgMask, fgModel, bgModel;
+Mat mask, refineMask, fgMask, fgModel, bgModel, depthMask;
 Rect rect;
+
+// world depth for opengl
+float worldDepthMin = -1.0, worldDepthMax = 1.0;
 
 
 /*********************
@@ -270,6 +273,9 @@ void release_memory() {
 void renderForeground() {
 
     //float cameraHeight = 1.6;
+    float renderDepth = (worldDepthMax - worldDepthMin);
+    int depthValue; // depth value from mask
+    float depth; // normalised depth
 
     // initialize the vector array
     //GLfloat *points = (GLfloat*) calloc(fgMask.rows * fgMask.cols, sizeof(GLfloat));
@@ -284,12 +290,25 @@ void renderForeground() {
             if (fgMask.at<uchar>(i,j) == 1) {
                 // set colour
                 Vec3b pixel = imgWorkingCopy.at<Vec3b>(i,j);
-                glColor3b(pixel[2], pixel[1], pixel[0]);
-                //printf("%d %d %d\n", pixel[2], pixel[1], pixel[0]);
+                
+                glColor3f(pixel[2]/255.0, pixel[1]/255.0, pixel[0]/255.0);
 
                 // init glVertex, x -> horiz, y -> height, z -> depth
+                depthValue = depthMask.at<uchar>(i,j);
+                if (depthValue > 0) {
+                    // normalise and set depth between min and max render depth
+                    depth = (renderDepth / depthValue) - (renderDepth/2);
+                } else {
+                    depth = 0;
+                }
+                
                 // OpenGl stores pixels upside down to OpenCV
-                glVertex3f((GLfloat) j, (GLfloat) rows - i, (GLfloat) 0);
+                
+                /* EXPERIMENTAL - rotate about y axis */
+                
+                
+                glVertex3f( (GLfloat) j, (GLfloat) rows - i, (GLfloat) depth );
+                printf("%d %f\n", depthValue, depth);
             }
         }
     }
@@ -305,6 +324,7 @@ void display (){
     glBegin(GL_POINTS);
     //glVertex3f(2.0, 4.0, 0.0);
     //glVertex3f(8.0, 4.0, 0.0);
+    
     renderForeground();
     glEnd();
     
@@ -326,6 +346,8 @@ void display (){
 
 //next we will create our window and display the "display" void:
 int renderGL (int argc, char **argv){
+    assert( (worldDepthMax - worldDepthMin) > 0 );
+    
     //glutInitDisplayMode ( GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
     glutInitDisplayMode ( GLUT_SINGLE | GLUT_RGB);
     
@@ -337,7 +359,7 @@ int renderGL (int argc, char **argv){
     glMatrixMode(GL_PROJECTION);              // setup viewing projection
     glLoadIdentity();                           // start with identity matrix
     //glOrtho(0.0, 10.0, 0.0, 10.0, -1.0, 1.0);   // setup a 10x10x2 viewing world
-    glOrtho(0.0, img.cols, 0.0, img.rows, -1.0, 1.0);   // setup a 10x10x2 viewing world
+    glOrtho(0.0, img.cols, 0.0, img.rows, worldDepthMin, worldDepthMax);   // setup a 10x10x2 viewing world
     
     glutDisplayFunc(display);
     glutMainLoop();
@@ -375,7 +397,9 @@ int main(int argc, char * argv[]) {
             setMouseCallback("Viewer", NULL, NULL); // remove mouse callback
             interactiveGrabCut(REFINE_MASK); // run grabcut
             mode = MODE_IDLE;
-            depthMap(fgMask, imgWorkingCopy, "Viewer", 100, false);
+            
+            // begin OpenGL rendering
+            depthMask = depthMap(fgMask, depthMask, "Viewer", 100, false);
             
             cvDestroyAllWindows();
             

@@ -10,6 +10,7 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <stdlib.h>
+#include <math.h>
 
 using namespace cv;
 using namespace std;
@@ -91,7 +92,7 @@ int countNeighbours(Mat m, int v, int row, int col) {
 }
 
 // Generate depth map with specified iterations
-void depthMap(Mat &mask, Mat &dest, const string &winname, int iterations, bool render) {
+Mat depthMap(Mat mask, Mat dest, const string &winname, int iterations, bool render) {
     
     Mat depthMask = mask.clone();
     Mat prevMask = Mat(mask.rows, mask.cols, CV_8UC1, double(0)); // mask from previous iteration
@@ -122,9 +123,36 @@ void depthMap(Mat &mask, Mat &dest, const string &winname, int iterations, bool 
             }
         }
     }
-    depthMask.release();
     prevMask.release();
     
-    imshow(winname, dest);
+    if (render) {
+        imshow(winname, dest);
+    }
+    
+    return depthMask;
+}
+
+/* EXPERIMENTAL - rotate about y axis */
+class Coord {
+    float x, y, z;
+
+public:
+    Coord(float x_c, float y_c, float z_c) {
+        x = x_c;
+        y = y_c;
+        z = z_c;
+    }
+};
+
+Coord rot(float x, float y, float z, float angle) {
+    float x_new, y_new, z_new;
+    // calculate rotation
+    x_new = cos(angle)*x - sin(angle)*z;
+    y_new = y;
+    z_new = sin(angle)*x + cos(angle)*z;
+    
+    Coord coord = Coord(x_new, y_new, z_new);
+    
+    return coord;
 }
 

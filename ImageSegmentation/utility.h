@@ -22,6 +22,6 @@ int applyMask(Mat src, Mat mask, Mat dest);
 int countNeighbours(Mat m, int v, int row, int col);
 
 // Generate depth map with specified iterations
-void depthMap(Mat &mask, Mat &dest, const string &winname, int iterations, bool render);
+Mat depthMap(Mat mask, Mat dest, const string &winname, int iterations, bool render);
 
 #endif
