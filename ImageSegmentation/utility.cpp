@@ -156,11 +156,13 @@ Coord rotate(float x, float y, float z, float r_x, float r_y, float r_z) {
     return coord;
 }
 
-Coord AffineRotate(float x, float y, float z, float r_x, float r_y, float r_z) {
-    Coord new_point = rotate(x, y, x, r_x, r_y, r_z);
-    Coord new_origin = rotate(240, 180, 0, r_x, r_y, r_z);
+Coord AffineRotate(float x, float y, float z, float r_x, float r_y, float r_z, int width, int height) {
     
-    Coord final_point = Coord(new_point.x - new_origin.x, new_point.y - new_origin.y, new_point.z - new_origin.z);
+    // Translate to 0,0 and rotate
+    Coord new_point = rotate(x - (width/2), y - (height/2), z, r_x, r_y, r_z);
+
+    // Translate back after rotation
+    Coord final_point = Coord(new_point.x + (width/2), new_point.y + (height/2), new_point.z);
     
     return final_point;
 }

@@ -43,6 +43,6 @@ public:
 Coord rotate(float x, float y, float z, float r_x, float r_y, float r_z);
 
 // Rotate about center of image
-Coord AffineRotate(float x, float y, float z, float r_x, float r_y, float r_z);
+Coord AffineRotate(float x, float y, float z, float r_x, float r_y, float r_z, int width, int height);
 
 #endif
