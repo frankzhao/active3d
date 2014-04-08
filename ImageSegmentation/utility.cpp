@@ -136,10 +136,10 @@ Mat depthMap(Mat mask, Mat dest, const string &winname, int iterations, bool ren
 Coord rot(float x, float y, float z, float angle) {
     float x_new, y_new, z_new;
     // calculate rotation
-    x_new = cos(angle)*x - sin(angle)*z;
+    x_new = x*cos(angle) - z*sin(angle);
     y_new = y;
-    z_new = sin(angle)*x + cos(angle)*z;
-    
+    z_new = x*sin(angle) + z*cos(angle);
+        
     Coord coord = Coord(x_new, y_new, z_new);
     
     return coord;
