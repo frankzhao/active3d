@@ -308,7 +308,7 @@ void renderForeground(float r_x, float r_y, float r_z) {
                 // OpenGl stores pixels upside down to OpenCV
                 
                 /* EXPERIMENTAL - rotate about y axis */
-                new_point = rot(j, rows - i, depth, r_x, r_y, r_z);
+                new_point = rotate(j, rows - i, depth, r_x, r_y, r_z);
                 glVertex3f( (GLfloat) new_point.x, (GLfloat) new_point.y, (GLfloat) (new_point.z)/rows );
                 //printf("(%f, %f, %f)\n", new_point.x, new_point.y, new_point.z);
                 

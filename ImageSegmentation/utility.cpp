@@ -133,7 +133,7 @@ Mat depthMap(Mat mask, Mat dest, const string &winname, int iterations, bool ren
 }
 
 /* EXPERIMENTAL - rotate angle in radians*/
-Coord rot(float x, float y, float z, float r_x, float r_y, float r_z) {
+Coord rotate(float x, float y, float z, float r_x, float r_y, float r_z) {
     float x_new, y_new, z_new;
     
     // rotate x
@@ -154,5 +154,14 @@ Coord rot(float x, float y, float z, float r_x, float r_y, float r_z) {
     Coord coord = Coord(x_new, y_new, z_new);
     
     return coord;
+}
+
+Coord AffineRotate(float x, float y, float z, float r_x, float r_y, float r_z) {
+    Coord new_point = rotate(x, y, x, r_x, r_y, r_z);
+    Coord new_origin = rotate(240, 180, 0, r_x, r_y, r_z);
+    
+    Coord final_point = Coord(new_point.x - new_origin.x, new_point.y - new_origin.y, new_point.z - new_origin.z);
+    
+    return final_point;
 }
 
