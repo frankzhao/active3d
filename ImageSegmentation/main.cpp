@@ -319,6 +319,21 @@ void renderForeground(float r_x, float r_y, float r_z) {
     }
 }
 
+void glutMouseCallback(int button, int state, int x, int y) {
+    printf("%d %d %d %d\n", button, state, x, y);
+    
+    while (state == 1) {
+        glClear( GL_COLOR_BUFFER_BIT);
+        
+        glBegin(GL_POINTS);
+        renderForeground(0,mask.rows/y,0);
+        glEnd();
+        
+        glFlush();
+    }
+    
+}
+
 /* openGL */
 //this is the "display" void, we will use it to clear the screen:
 void display (){
@@ -326,7 +341,7 @@ void display (){
     glClear( GL_COLOR_BUFFER_BIT);
     
     glBegin(GL_POINTS);
-    renderForeground(0,0,PI/4);
+    renderForeground(0,0,0);
     glEnd();
 
     glFlush();
@@ -350,6 +365,10 @@ int renderGL (int argc, char **argv){
     glOrtho(0.0, img.cols, 0.0, img.rows, worldDepthMin, worldDepthMax);   // setup a 10x10x2 viewing world
     
     glutDisplayFunc(display);
+    
+    // GLUT mouse callback
+    glutMouseFunc(glutMouseCallback);
+    
     glutMainLoop();
     
     return 0;
