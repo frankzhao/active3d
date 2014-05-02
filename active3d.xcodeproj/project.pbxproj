@@ -71,7 +71,7 @@
 				01DD1FE618BA1BED00D12CF0 /* libopencv_imgproc.2.4.8.dylib */,
 				01DD1FE018BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib */,
 				01DD1FE118BA1ADF00D12CF0 /* libopencv_highgui.2.4.8.dylib */,
-				01DD1FC518B9FC5200D12CF0 /* ImageSegmentation */,
+				01DD1FC518B9FC5200D12CF0 /* active3d */,
 				01DD1FC418B9FC5200D12CF0 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -84,7 +84,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		01DD1FC518B9FC5200D12CF0 /* ImageSegmentation */ = {
+		01DD1FC518B9FC5200D12CF0 /* active3d */ = {
 			isa = PBXGroup;
 			children = (
 				01DD1FC618B9FC5200D12CF0 /* active3d.cpp */,
@@ -92,6 +92,7 @@
 				0125A5A918E1A90800004934 /* utility.h */,
 				01DD1FC818B9FC5200D12CF0 /* ImageSegmentation.1 */,
 			);
+			name = active3d;
 			path = ImageSegmentation;
 			sourceTree = "<group>";
 		};

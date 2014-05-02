@@ -1,5 +1,5 @@
 //
-//  main.cpp
+//  active3d.cpp
 //  ImageSegmentation
 //
 //  Created by Frank Zhao on 23/02/2014.
