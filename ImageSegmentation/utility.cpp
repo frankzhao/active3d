@@ -4,6 +4,7 @@
 //
 //  Created by Frank Zhao on 25/03/2014.
 //  Copyright (c) 2014 Frank Zhao. All rights reserved.
+//  <frank.zhao@anu.edu.au>
 //
 
 #include "utility.h"
@@ -22,10 +23,9 @@ using namespace std;
 //TODO add option to specify placement location and blending coefficients
 int overlayImage(Mat src, Mat overlay, Mat dest) {
     
-    if ( (src.rows * src.cols) != (overlay.rows * overlay.cols) ) {
-        cerr << "OverlayImage: source and overlay imaged are not the same size!" << endl;
-        return 1;
-    }
+    // ensure the source and overlay/dest have the same size
+    assert ( (src.rows * src.cols) == (dest.rows * dest.cols) );
+    assert ( (src.rows * src.cols) == (overlay.rows * overlay.cols) );
     
     for (int i=0; i<src.rows; i++) {
         for (int j=0; j<src.cols; j++) {
@@ -39,6 +39,11 @@ int overlayImage(Mat src, Mat overlay, Mat dest) {
 
 // apply a mask with unmasked areas in alpha=0
 int applyMask(Mat src, Mat mask, Mat dest) {
+    
+    assert(src.size > 0);
+    assert(mask.size > 0);
+    assert(dest.size > 0);
+    assert( (src.size == mask.size) && (mask.size == dest.size) );
     
     for (int i=0; i<src.rows; i++) {
         for (int j=0; j<src.cols; j++) {
@@ -66,6 +71,10 @@ int applyMask(Mat src, Mat mask, Mat dest) {
 // Count how many of the 8 neighbouring pixels
 // are of a particular value (8-bit, 1-channel)
 int countNeighbours(Mat m, int v, int row, int col) {
+    
+    assert(m.size > 0);
+    
+    
     int count = 0;
             
     // make sure indicies are within bounds
@@ -109,6 +118,7 @@ Mat depthMap(Mat mask, Mat dest, const string &winname, int iterations, bool ren
                 // count neighbouring pixels
                 if (prevMask.at<uchar>(i,j) == depth-1) {
                     count = countNeighbours(prevMask, depth-1, i, j);
+
                     //printf("%d ", count);
                 }
                 
@@ -166,4 +176,3 @@ Coord AffineRotate(float x, float y, float z, float r_x, float r_y, float r_z, i
     
     return final_point;
 }
-

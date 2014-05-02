@@ -4,7 +4,30 @@
 //
 //  Created by Frank Zhao on 23/02/2014.
 //  Copyright (c) 2014 Frank Zhao. All rights reserved.
+//  <frank.zhao@anu.edu.au>
 //
+
+#ifdef WIN32
+#include <windows.h>
+#endif
+
+#include <stdlib.h>
+#include <iostream>
+#include <fstream>
+
+#include <opencv2/opencv.hpp>
+
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
+#include <GL/glut.h>
+#include <GL/glu.h>
+#include <GL/gl.h>
+#endif
+
+#include "utility.h"
 
 #define RECT_MASK 0
 #define REFINE_MASK 1
@@ -33,6 +56,7 @@
 using namespace cv;
 using namespace std;
 
+string windowName = "Viewer";
 int key; // keyboard input
 int mode = 0; //current mode we are in
 int mouseX1 = 0, mouseY1 = 0, mouseX2 = 0, mouseY2 = 0;
@@ -65,7 +89,7 @@ static int interactiveGrabCut(int grabCutMode) {
         int rectArea = abs((mouseX1 - mouseX2) * (mouseY2 - mouseY1)) > 0;
         assert(rectArea > 0 && rectArea < (img.cols * img.rows) ); // check that the rectangle is valid
             
-        rect = Rect( Point(mouseX1, mouseY1), Point (mouseX2, mouseY2) );
+        rect = cv::Rect( cv::Point(mouseX1, mouseY1), cv::Point (mouseX2, mouseY2) );
         
         // GC_INIT_WITH_RECT -> using rectangle
         // GC_INIT_WITH_MASK -> using mask
@@ -96,7 +120,7 @@ static int interactiveGrabCut(int grabCutMode) {
         viewport = imgWorkingCopy.clone();
         rectangle(viewport, rect, Scalar(0,0,255));
         
-        imshow("Viewer", viewport);
+        imshow(windowName, viewport);
         
         // convert mask back to single channel for next iteration
         cvtColor(fgMask, fgMask, CV_BGR2GRAY);
@@ -127,7 +151,7 @@ static int interactiveGrabCut(int grabCutMode) {
         
         imgWorkingCopy = img.clone();
         
-        grabCut(img, mask, Rect(), bgModel, fgModel, 5, GC_INIT_WITH_MASK); // grabcut with new mask
+        grabCut(img, mask, cv::Rect(), bgModel, fgModel, 5, GC_INIT_WITH_MASK); // grabcut with new mask
         
         for (int i=0; i<img.rows; i++) {
             for (int j=0; j<img.cols; j++) {
@@ -148,7 +172,7 @@ static int interactiveGrabCut(int grabCutMode) {
         imgWorkingCopy.convertTo(imgWorkingCopy, CV_8UC3);
         mask.convertTo(mask, CV_8UC1);
         
-        imshow("Viewer", imgWorkingCopy);
+        imshow(windowName, imgWorkingCopy);
         
         fgModel.release();
         bgModel.release();
@@ -176,28 +200,28 @@ static void mousePaintEvent(int event, int x, int y, int, void*) {
         case CV_EVENT_LBUTTONDOWN:
             drag = !drag;
             if (!paintFG) {
-                circle(viewport, Point (x,y), brushRadius, Scalar(150,150,150), -1);
-                circle(refineMask, Point (x,y), brushRadius, GC_BGD, -1);
+                circle(viewport, cv::Point (x,y), brushRadius, Scalar(150,150,150), -1);
+                circle(refineMask, cv::Point (x,y), brushRadius, GC_BGD, -1);
             } else if (paintFG) {
-                circle(viewport, Point (x,y), brushRadius, Scalar(255,255,255), -1);
-                circle(refineMask, Point (x,y), brushRadius, GC_FGD, -1);
+                circle(viewport, cv::Point (x,y), brushRadius, Scalar(255,255,255), -1);
+                circle(refineMask, cv::Point (x,y), brushRadius, GC_FGD, -1);
             }
-            imshow("Viewer", viewport);
+            imshow(windowName, viewport);
             break;
         case CV_EVENT_LBUTTONUP:
             drag = !drag;
-            imshow("Viewer", viewport);
+            imshow(windowName, viewport);
             break;
         case CV_EVENT_MOUSEMOVE:
             if (drag) {
                 if (!paintFG) {
-                    circle(viewport, Point (x,y), brushRadius, Scalar(150,150,150), -1);
-                    circle(refineMask, Point (x,y), brushRadius, GC_BGD, -1);
+                    circle(viewport, cv::Point (x,y), brushRadius, Scalar(150,150,150), -1);
+                    circle(refineMask, cv::Point (x,y), brushRadius, GC_BGD, -1);
                 } else if (paintFG) {
-                    circle(viewport, Point (x,y), brushRadius, Scalar(255,255,255), -1);
-                    circle(refineMask, Point (x,y), brushRadius, GC_FGD, -1);
+                    circle(viewport, cv::Point (x,y), brushRadius, Scalar(255,255,255), -1);
+                    circle(refineMask, cv::Point (x,y), brushRadius, GC_FGD, -1);
                 }
-                imshow("Viewer", viewport);
+                imshow(windowName, viewport);
             }
             break;
         default:
@@ -219,18 +243,18 @@ static void mouseRectangleEvent(int event, int x, int y, int, void*) {
             mouseY2 = y;
             // printf("UP %d, %d\n", mouseY1, mouseY2);
             drag = !drag;
-            setMouseCallback("Viewer", NULL, NULL); // remove mouse callback
+            setMouseCallback(windowName, NULL, NULL); // remove mouse callback
             interactiveGrabCut(RECT_MASK); // run grabcut
             
             // Let the user define a refine mask in paint mode
-            setMouseCallback("Viewer", mousePaintEvent);
+            setMouseCallback(windowName, mousePaintEvent);
             mode = MODE_PAINTMODE;
             break;
         case CV_EVENT_MOUSEMOVE:
             if (drag) {
                 viewport = img.clone();
-                rectangle(viewport, Point(mouseX1, mouseY1), Point(x, y), Scalar(0,255,0));
-                imshow("Viewer", viewport);
+                rectangle(viewport, cv::Point(mouseX1, mouseY1), cv::Point(x, y), Scalar(0,255,0));
+                imshow(windowName, viewport);
             }
             break;
         default:
@@ -250,12 +274,12 @@ int initialize_image() {
     }
     
     // Prepare window
-    namedWindow("Viewer", CV_WINDOW_AUTOSIZE);
-    imshow("Viewer", img);
+    namedWindow(windowName, CV_WINDOW_AUTOSIZE);
+    imshow(windowName, img);
     waitKey(200);
     
     // Let the user define a rectangle
-    setMouseCallback("Viewer", mouseRectangleEvent);
+    setMouseCallback(windowName, mouseRectangleEvent);
     mode = MODE_RECTMODE;
     return 0;
 }
@@ -270,7 +294,6 @@ void release_memory() {
     viewport.release();
     refineMask.release();
 }
-
 
 void renderForeground(float r_x, float r_y, float r_z) {
 
@@ -379,9 +402,10 @@ int renderGL (int argc, char **argv){
  *********************/
 
 int main(int argc, char * argv[]) {
+
     // initialise GLUT window
     glutInit (&argc, argv);
-    
+
     int retval = initialize_image();
     
     if (retval == -1) {
@@ -401,7 +425,7 @@ int main(int argc, char * argv[]) {
             paintFG = !paintFG;
         } else if (key == 13 && mode == MODE_PAINTMODE) {
             // enter key to run refine mask
-            setMouseCallback("Viewer", NULL, NULL); // remove mouse callback
+            setMouseCallback(windowName, NULL, NULL); // remove mouse callback
             interactiveGrabCut(REFINE_MASK); // run grabcut
             mode = MODE_IDLE;
             
@@ -418,6 +442,7 @@ int main(int argc, char * argv[]) {
         }
     }
     
+    //destroyAllWindows();
     release_memory();
     
     return 0;

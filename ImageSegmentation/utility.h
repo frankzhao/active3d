@@ -4,6 +4,7 @@
 //
 //  Created by Frank Zhao on 25/03/2014.
 //  Copyright (c) 2014 Frank Zhao. All rights reserved.
+//  <frank.zhao@anu.edu.au>
 //
 
 #ifndef ImageSegmentation_utility_h
@@ -44,5 +45,8 @@ Coord rotate(float x, float y, float z, float r_x, float r_y, float r_z);
 
 // Rotate about center of image
 Coord AffineRotate(float x, float y, float z, float r_x, float r_y, float r_z, int width, int height);
+
+// depthMap(fgMask, drawDest, iterations, colorView)
+void depthMap(Mat mask, Mat dest, int iterations, const string &winname, bool color);
 
 #endif
