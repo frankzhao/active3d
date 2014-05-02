@@ -7,12 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0125A5AB18E1A91C00004934 /* utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0125A5AA18E1A91C00004934 /* utility.cpp */; };
 		0125A5B018E1B4E200004934 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0125A5AF18E1B4E200004934 /* OpenGL.framework */; };
 		0125A5B218E1B4F200004934 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0125A5B118E1B4F200004934 /* GLUT.framework */; };
 		0125A5B418E1B4FB00004934 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0125A5B318E1B4FB00004934 /* Cocoa.framework */; };
-		01DD1FC718B9FC5200D12CF0 /* active3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01DD1FC618B9FC5200D12CF0 /* active3d.cpp */; };
-		01DD1FC918B9FC5200D12CF0 /* ImageSegmentation.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 01DD1FC818B9FC5200D12CF0 /* ImageSegmentation.1 */; };
 		01DD1FE218BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 01DD1FE018BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib */; };
 		01DD1FE318BA1ADF00D12CF0 /* libopencv_highgui.2.4.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 01DD1FE118BA1ADF00D12CF0 /* libopencv_highgui.2.4.8.dylib */; };
 		01DD1FE718BA1BED00D12CF0 /* libopencv_imgproc.2.4.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 01DD1FE618BA1BED00D12CF0 /* libopencv_imgproc.2.4.8.dylib */; };
@@ -25,21 +22,20 @@
 			dstPath = /usr/share/man/man1/;
 			dstSubfolderSpec = 0;
 			files = (
-				01DD1FC918B9FC5200D12CF0 /* ImageSegmentation.1 in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		0125A5A918E1A90800004934 /* utility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utility.h; sourceTree = "<group>"; };
-		0125A5AA18E1A91C00004934 /* utility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utility.cpp; sourceTree = "<group>"; };
 		0125A5AF18E1B4E200004934 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		0125A5B118E1B4F200004934 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 		0125A5B318E1B4FB00004934 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		0174FBD11913BB5900484DDA /* active3d.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = active3d.cpp; sourceTree = "<group>"; };
+		0174FBD21913BB5900484DDA /* active3d.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = active3d.1; sourceTree = "<group>"; };
+		0174FBD31913BB5900484DDA /* utility.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = utility.cpp; sourceTree = "<group>"; };
+		0174FBD41913BB5900484DDA /* utility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utility.h; sourceTree = "<group>"; };
 		01DD1FC318B9FC5200D12CF0 /* active3d */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = active3d; sourceTree = BUILT_PRODUCTS_DIR; };
-		01DD1FC618B9FC5200D12CF0 /* active3d.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = active3d.cpp; sourceTree = "<group>"; };
-		01DD1FC818B9FC5200D12CF0 /* ImageSegmentation.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = ImageSegmentation.1; sourceTree = "<group>"; };
 		01DD1FE018BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_core.2.4.8.dylib; path = ../../../../../opt/local/lib/libopencv_core.2.4.8.dylib; sourceTree = "<group>"; };
 		01DD1FE118BA1ADF00D12CF0 /* libopencv_highgui.2.4.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_highgui.2.4.8.dylib; path = ../../../../../opt/local/lib/libopencv_highgui.2.4.8.dylib; sourceTree = "<group>"; };
 		01DD1FE618BA1BED00D12CF0 /* libopencv_imgproc.2.4.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgproc.2.4.8.dylib; path = ../../../../../opt/local/lib/libopencv_imgproc.2.4.8.dylib; sourceTree = "<group>"; };
@@ -62,6 +58,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0174FBD01913BB5900484DDA /* active3d */ = {
+			isa = PBXGroup;
+			children = (
+				0174FBD11913BB5900484DDA /* active3d.cpp */,
+				0174FBD21913BB5900484DDA /* active3d.1 */,
+				0174FBD31913BB5900484DDA /* utility.cpp */,
+				0174FBD41913BB5900484DDA /* utility.h */,
+			);
+			path = active3d;
+			sourceTree = "<group>";
+		};
 		01DD1FBA18B9FC5200D12CF0 = {
 			isa = PBXGroup;
 			children = (
@@ -71,7 +78,7 @@
 				01DD1FE618BA1BED00D12CF0 /* libopencv_imgproc.2.4.8.dylib */,
 				01DD1FE018BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib */,
 				01DD1FE118BA1ADF00D12CF0 /* libopencv_highgui.2.4.8.dylib */,
-				01DD1FC518B9FC5200D12CF0 /* active3d */,
+				0174FBD01913BB5900484DDA /* active3d */,
 				01DD1FC418B9FC5200D12CF0 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -82,18 +89,6 @@
 				01DD1FC318B9FC5200D12CF0 /* active3d */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		01DD1FC518B9FC5200D12CF0 /* active3d */ = {
-			isa = PBXGroup;
-			children = (
-				01DD1FC618B9FC5200D12CF0 /* active3d.cpp */,
-				0125A5AA18E1A91C00004934 /* utility.cpp */,
-				0125A5A918E1A90800004934 /* utility.h */,
-				01DD1FC818B9FC5200D12CF0 /* ImageSegmentation.1 */,
-			);
-			name = active3d;
-			path = ImageSegmentation;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -147,8 +142,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0125A5AB18E1A91C00004934 /* utility.cpp in Sources */,
-				01DD1FC718B9FC5200D12CF0 /* active3d.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
