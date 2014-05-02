@@ -67,7 +67,8 @@ Mat mask, refineMask, fgMask, fgModel, bgModel, depthMask;
 Rect rect;
 
 // world depth for opengl
-float worldDepthMin = -1.0, worldDepthMax = 1.0;
+float worldDepthMin, worldDepthMax;
+float rotation_x = 0, rotation_y = 0;
 
 
 /*********************
@@ -303,10 +304,6 @@ void renderForeground(float r_x, float r_y, float r_z) {
     float depth; // normalised depth
     Coord new_point;
 
-    // initialize the vector array
-    //GLfloat *points = (GLfloat*) calloc(fgMask.rows * fgMask.cols, sizeof(GLfloat));
-    //Vector3Df *points = (Vector3Df*) calloc(fgMask.rows * fgMask.cols, sizeof(float) * 3);
-
     int rows = fgMask.rows, cols = fgMask.cols;
 
     for (int i=0; i<rows; i++) {
@@ -331,37 +328,67 @@ void renderForeground(float r_x, float r_y, float r_z) {
                 // OpenGl stores pixels upside down to OpenCV
                 
                 /* EXPERIMENTAL - rotate about y axis */
-                new_point = AffineRotate(j, rows - i, depth, r_x, r_y, r_z, cols, rows);
-                glVertex3f( (GLfloat) new_point.x, (GLfloat) new_point.y, (GLfloat) (new_point.z)/rows );
+                //new_point = AffineRotate(j, rows - i, depth, r_x, r_y, r_z, cols, rows);
+                //glVertex3f( (GLfloat) new_point.x, (GLfloat) new_point.y, (GLfloat) (new_point.z)/rows );
                 //printf("(%f, %f, %f)\n", new_point.x, new_point.y, new_point.z);
                 
-                //glVertex3f( (GLfloat) j, (GLfloat) rows - i, (GLfloat) depth );
+                glVertex3f( (GLfloat) j, (GLfloat) rows - i, (GLfloat) depth );
                 //printf("%d %f\n", depthValue, depth);
             }
         }
     }
 }
 
-void glutMouseCallback(int button, int state, int x, int y) {
-    printf("%d %d %d %d\n", button, state, x, y);
-    
-    while (state == 1) {
-        glClear( GL_COLOR_BUFFER_BIT);
-        
-        glBegin(GL_POINTS);
-        renderForeground(0,mask.rows/y,0);
-        glEnd();
-        
-        glFlush();
+//void glutMouseCallback(int button, int state, int x, int y) {
+//    printf("%d %d %d %d\n", button, state, x, y);
+//    
+//    while (state == 1) {
+//        glClear( GL_COLOR_BUFFER_BIT);
+//        
+//        glBegin(GL_POINTS);
+//        renderForeground(0,mask.rows/y,0);
+//        glEnd();
+//        
+//        glFlush();
+//    }
+//    
+//}
+
+// Arrow keys for rotation
+void rotate (int key, int x, int y) {
+    switch (key) {
+        case GLUT_KEY_UP:
+            rotation_y -= 5;
+            break;
+        case GLUT_KEY_DOWN:
+            rotation_y += 5;
+            break;
+        case GLUT_KEY_LEFT:
+            rotation_x -= 5;
+            break;
+        case GLUT_KEY_RIGHT:
+            rotation_x += 5;
+            break;
+        default:
+            break;
     }
     
+    // Update display
+    glutPostRedisplay();
 }
 
 /* openGL */
 //this is the "display" void, we will use it to clear the screen:
 void display (){
     
-    glClear( GL_COLOR_BUFFER_BIT);
+    // Clear the colour and depth buffers
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity(); // Reset transformations
+    
+    glRotatef(rotation_y, 1.0, 0.0, 0.0);
+    glRotatef(rotation_x, 0.0, 1.0, 0.0);
     
     glBegin(GL_POINTS);
     renderForeground(0,0,0);
@@ -375,22 +402,26 @@ int renderGL (int argc, char **argv){
     assert( (worldDepthMax - worldDepthMin) > 0 );
     
     //glutInitDisplayMode ( GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
-    glutInitDisplayMode ( GLUT_SINGLE | GLUT_RGB);
+    glutInitDisplayMode ( GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
     
-    glutInitWindowPosition(0,0);
+    glutInitWindowPosition(400,400);
     glutInitWindowSize(img.cols,img.rows);
     glutCreateWindow ("GLUT");
+    
+    glEnable(GL_DEPTH_TEST);    // Enable depth rendering
+    glDepthFunc(GL_LESS);       // Incoming depth needs to be less than stored
     
     glClearColor(0.0, 0.0, 0.0, 0.0);         // black background
     glMatrixMode(GL_PROJECTION);              // setup viewing projection
     glLoadIdentity();                           // start with identity matrix
     //glOrtho(0.0, 10.0, 0.0, 10.0, -1.0, 1.0);   // setup a 10x10x2 viewing world
-    glOrtho(0.0, img.cols, 0.0, img.rows, worldDepthMin, worldDepthMax);   // setup a 10x10x2 viewing world
+    glOrtho(0.0, img.cols, 0.0, img.rows, worldDepthMin, worldDepthMax);   // setup dimensions of viewing world
     
     glutDisplayFunc(display);
     
     // GLUT mouse callback
-    glutMouseFunc(glutMouseCallback);
+    //glutMouseFunc(glutMouseCallback);
+    glutSpecialFunc(rotate);    // Key handling for rotations
     
     glutMainLoop();
     
@@ -430,6 +461,8 @@ int main(int argc, char * argv[]) {
             mode = MODE_IDLE;
             
             // begin OpenGL rendering
+            worldDepthMin = -img.cols/2;
+            worldDepthMax =  img.cols/2;
             depthMask = depthMap(fgMask, depthMask, "Viewer", 100, false);
             
             cvDestroyAllWindows();
