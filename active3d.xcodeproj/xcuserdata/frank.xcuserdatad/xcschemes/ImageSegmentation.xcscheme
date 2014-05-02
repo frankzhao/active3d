@@ -16,8 +16,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "01DD1FC218B9FC5200D12CF0"
                BuildableName = "ImageSegmentation"
-               BlueprintName = "ImageSegmentation"
-               ReferencedContainer = "container:ImageSegmentation.xcodeproj">
+               BlueprintName = "active3d"
+               ReferencedContainer = "container:active3d.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -34,8 +34,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "01DD1FC218B9FC5200D12CF0"
             BuildableName = "ImageSegmentation"
-            BlueprintName = "ImageSegmentation"
-            ReferencedContainer = "container:ImageSegmentation.xcodeproj">
+            BlueprintName = "active3d"
+            ReferencedContainer = "container:active3d.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -53,8 +53,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "01DD1FC218B9FC5200D12CF0"
             BuildableName = "ImageSegmentation"
-            BlueprintName = "ImageSegmentation"
-            ReferencedContainer = "container:ImageSegmentation.xcodeproj">
+            BlueprintName = "active3d"
+            ReferencedContainer = "container:active3d.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -71,8 +71,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "01DD1FC218B9FC5200D12CF0"
             BuildableName = "ImageSegmentation"
-            BlueprintName = "ImageSegmentation"
-            ReferencedContainer = "container:ImageSegmentation.xcodeproj">
+            BlueprintName = "active3d"
+            ReferencedContainer = "container:active3d.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
