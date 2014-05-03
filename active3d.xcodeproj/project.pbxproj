@@ -13,7 +13,6 @@
 		0125A5B418E1B4FB00004934 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0125A5B318E1B4FB00004934 /* Cocoa.framework */; };
 		01655B881913D5CF00D51A95 /* active3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0174FBD11913BB5900484DDA /* active3d.cpp */; };
 		01655B891913D5D300D51A95 /* utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0174FBD31913BB5900484DDA /* utility.cpp */; };
-		01655B8A1913D5D600D51A95 /* utility.h in Sources */ = {isa = PBXBuildFile; fileRef = 0174FBD41913BB5900484DDA /* utility.h */; };
 		01DD1FE218BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 01DD1FE018BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib */; };
 		01DD1FE318BA1ADF00D12CF0 /* libopencv_highgui.2.4.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 01DD1FE118BA1ADF00D12CF0 /* libopencv_highgui.2.4.8.dylib */; };
 		01DD1FE718BA1BED00D12CF0 /* libopencv_imgproc.2.4.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 01DD1FE618BA1BED00D12CF0 /* libopencv_imgproc.2.4.8.dylib */; };
@@ -151,7 +150,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				012494201914FE9800A87FD9 /* transformation.cpp in Sources */,
-				01655B8A1913D5D600D51A95 /* utility.h in Sources */,
 				01655B891913D5D300D51A95 /* utility.cpp in Sources */,
 				01655B881913D5CF00D51A95 /* active3d.cpp in Sources */,
 			);

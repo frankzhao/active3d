@@ -176,3 +176,14 @@ Coord AffineRotate(float x, float y, float z, float r_x, float r_y, float r_z, i
     
     return final_point;
 }
+
+// Print float matricies nicely
+void printMatrix(Mat m) {
+    int i, j;
+    for (i=0; i<m.rows; i++) {
+        for (j=0; j<m.cols; j++) {
+            cout << m.at<float>(i,j) << ' ';
+        }
+        cout << endl;
+    }
+}

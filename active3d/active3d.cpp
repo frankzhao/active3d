@@ -300,8 +300,6 @@ void renderForeground(float r_x, float r_y, float r_z) {
                 // set colour
                 Vec3b pixel = imgWorkingCopy.at<Vec3b>(i,j);
                 
-                pixel = reconstruct3D(pixel);
-                
                 glColor3f(pixel[2]/255.0, pixel[1]/255.0, pixel[0]/255.0);
 
                 // init glVertex, x -> horiz, y -> height, z -> depth
@@ -313,14 +311,18 @@ void renderForeground(float r_x, float r_y, float r_z) {
                     depth = 0;
                 }
                 
-                // OpenGl stores pixels upside down to OpenCV
+                // 3D reconstruction
+                Vec3f point = {(float) j, (float) i, (float) depth};
+                point = reconstruct3D(point);
                 
                 /* EXPERIMENTAL - rotate about y axis */
                 //new_point = AffineRotate(j, rows - i, depth, r_x, r_y, r_z, cols, rows);
                 //glVertex3f( (GLfloat) new_point.x, (GLfloat) new_point.y, (GLfloat) (new_point.z)/rows );
                 //printf("(%f, %f, %f)\n", new_point.x, new_point.y, new_point.z);
                 
-                glVertex3f( (GLfloat) j, (GLfloat) rows - i, (GLfloat) depth );
+                // OpenGl stores pixels upside down to OpenCV
+                glVertex3f( (GLfloat) point[0], (GLfloat) rows - point[1], (GLfloat) point[2] );
+                //glVertex3f( (GLfloat) j, (GLfloat) rows - i, (GLfloat) depth );
                 //printf("%d %f\n", depthValue, depth);
             }
         }

@@ -14,5 +14,8 @@
 
 #endif /* defined(__active3d__transformation__) */
 
+#include <opencv2/opencv.hpp>
+using namespace cv;
+
 // Transform a pixel vector into 3D space
-Vec3b reconstruct3D(Vec3b pixel);
+Vec3f reconstruct3D(Vec3f pixel);

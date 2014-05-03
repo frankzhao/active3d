@@ -49,4 +49,7 @@ Coord AffineRotate(float x, float y, float z, float r_x, float r_y, float r_z, i
 // depthMap(fgMask, drawDest, iterations, colorView)
 void depthMap(Mat mask, Mat dest, int iterations, const string &winname, bool color);
 
+// Print float matricies nicely
+void printMatrix(Mat m);
+
 #endif
