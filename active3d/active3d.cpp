@@ -28,6 +28,7 @@
 #endif
 
 #include "utility.h"
+#include "transformation.h"
 
 #define RECT_MASK 0
 #define REFINE_MASK 1
@@ -37,21 +38,6 @@
 #define MODE_PAINTMODE 2
 
 #define PI 3.14159265
-
-#include <opencv2/opencv.hpp>
-#include <stdlib.h>
-#include "utility.h"
-
-// OpenGL
-#ifdef __APPLE__
-#include <GLUT/glut.h>
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#else
-#include <GL/glut.h>
-#include <GL/glu.h>
-#include <GL/gl.h>
-#endif
 
 using namespace cv;
 using namespace std;
@@ -313,6 +299,8 @@ void renderForeground(float r_x, float r_y, float r_z) {
             if (fgMask.at<uchar>(i,j) == 1) {
                 // set colour
                 Vec3b pixel = imgWorkingCopy.at<Vec3b>(i,j);
+                
+                pixel = reconstruct3D(pixel);
                 
                 glColor3f(pixel[2]/255.0, pixel[1]/255.0, pixel[0]/255.0);
 

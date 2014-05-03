@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		012494201914FE9800A87FD9 /* transformation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0124941E1914FE9800A87FD9 /* transformation.cpp */; };
 		0125A5B018E1B4E200004934 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0125A5AF18E1B4E200004934 /* OpenGL.framework */; };
 		0125A5B218E1B4F200004934 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0125A5B118E1B4F200004934 /* GLUT.framework */; };
 		0125A5B418E1B4FB00004934 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0125A5B318E1B4FB00004934 /* Cocoa.framework */; };
@@ -31,6 +32,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0124941E1914FE9800A87FD9 /* transformation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = transformation.cpp; sourceTree = "<group>"; };
+		0124941F1914FE9800A87FD9 /* transformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = transformation.h; sourceTree = "<group>"; };
 		0125A5AF18E1B4E200004934 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		0125A5B118E1B4F200004934 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 		0125A5B318E1B4FB00004934 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -68,6 +71,8 @@
 				0174FBD21913BB5900484DDA /* active3d.1 */,
 				0174FBD31913BB5900484DDA /* utility.cpp */,
 				0174FBD41913BB5900484DDA /* utility.h */,
+				0124941E1914FE9800A87FD9 /* transformation.cpp */,
+				0124941F1914FE9800A87FD9 /* transformation.h */,
 			);
 			path = active3d;
 			sourceTree = "<group>";
@@ -145,6 +150,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				012494201914FE9800A87FD9 /* transformation.cpp in Sources */,
 				01655B8A1913D5D600D51A95 /* utility.h in Sources */,
 				01655B891913D5D300D51A95 /* utility.cpp in Sources */,
 				01655B881913D5CF00D51A95 /* active3d.cpp in Sources */,
