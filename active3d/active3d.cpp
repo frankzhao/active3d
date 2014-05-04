@@ -312,7 +312,7 @@ void renderForeground(float r_x, float r_y, float r_z) {
                 }
                 
                 // 3D reconstruction
-                Vec3f point = {(float) j, (float) i, (float) depth};
+                Vec3f point = {(float) j, (float) i, (float) depth/10};
                 point = reconstruct3D(point);
                 
                 /* EXPERIMENTAL - rotate about y axis */
@@ -451,8 +451,8 @@ int main(int argc, char * argv[]) {
             mode = MODE_IDLE;
             
             // begin OpenGL rendering
-            worldDepthMin = -img.cols/2;
-            worldDepthMax =  img.cols/2;
+            worldDepthMin = -img.cols;
+            worldDepthMax =  img.cols;
             depthMask = depthMap(fgMask, depthMask, "Viewer", 100, false);
             
             cvDestroyAllWindows();

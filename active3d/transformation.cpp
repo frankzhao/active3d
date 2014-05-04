@@ -16,16 +16,18 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define PI 3.14159265
+
 using namespace cv;
 using namespace std;
 
 // Define transformation matrices
 // {-x, y, z} z is positive towards us
-const float height = 0.0;
-const float dist = 0.0;
+const float height = 2.0;
+const float dist = -10.0;
 const Vec3f translationVector = {0, height, dist};
 
-void constructRotationMatrix(float angle, Mat dest) {
+void constructInverseRotationMatrix(float angle, Mat dest) {
     float rotvalues[3][3] = {
         {1.0, 0.0       ,  0.0       },
         {0.0, cos(angle), -sin(angle)},
@@ -34,8 +36,17 @@ void constructRotationMatrix(float angle, Mat dest) {
 
     Mat rotMatrix = Mat(3, 3, CV_32FC1, rotvalues);
     rotMatrix.copyTo(dest);
-    //printMatrix(rotMatrix);
-    //return rotMatrix;
+}
+
+void constructRotationMatrix(float angle, Mat dest) {
+    float rotvalues[3][3] = {
+        {1.0,  0.0       ,  0.0      },
+        {0.0,  cos(angle), sin(angle)},
+        {0.0, -sin(angle), cos(angle)}
+    };
+    
+    Mat rotMatrix = Mat(3, 3, CV_32FC1, rotvalues);
+    rotMatrix.copyTo(dest);
 }
 
 // Converts image pixel into a 3D point
@@ -49,7 +60,7 @@ Vec3f reconstruct3D(Vec3f point) {
     
     // rotate
     Mat rotationMatrix = Mat(3, 3, CV_32FC1, Scalar(0.0));
-    constructRotationMatrix(0.034906585, rotationMatrix);
+    constructInverseRotationMatrix(PI/4, rotationMatrix);
     vec = rotationMatrix * vec;
     
     //printMatrix(rotationMatrix);
