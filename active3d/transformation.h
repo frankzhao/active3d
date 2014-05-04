@@ -17,5 +17,6 @@
 #include <opencv2/opencv.hpp>
 using namespace cv;
 
-// Transform a pixel vector into 3D space
-Vec3f reconstruct3D(Vec3f pixel);
+// Converts image pixel into a 3D point
+// Needs image width, height and depth
+Vec3f reconstruct3D(Vec3f point, int width, int height);

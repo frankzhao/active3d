@@ -313,7 +313,7 @@ void renderForeground(float r_x, float r_y, float r_z) {
                 
                 // 3D reconstruction
                 Vec3f point = {(float) j, (float) i, (float) depth/10};
-                point = reconstruct3D(point);
+                point = reconstruct3D(point, img.cols, img.rows);
                 
                 /* EXPERIMENTAL - rotate about y axis */
                 //new_point = AffineRotate(j, rows - i, depth, r_x, r_y, r_z, cols, rows);
