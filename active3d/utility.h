@@ -52,4 +52,7 @@ void depthMap(Mat mask, Mat dest, int iterations, const string &winname, bool co
 // Print float matricies nicely
 void printMatrix(Mat m);
 
+// Simple matrix multiplication
+Mat matrixMultiply(Mat m, Mat n);
+
 #endif

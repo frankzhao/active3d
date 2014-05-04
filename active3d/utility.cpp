@@ -182,8 +182,28 @@ void printMatrix(Mat m) {
     int i, j;
     for (i=0; i<m.rows; i++) {
         for (j=0; j<m.cols; j++) {
-            cout << m.at<float>(i,j) << ' ';
+            printf("%f ", m.at<float>(i,j));
         }
         cout << endl;
     }
+    cout << endl;
+}
+
+// Simple matrix multiplication
+Mat matrixMultiply(Mat m, Mat n) {
+    assert(m.cols == n.rows);
+    
+    int sum = 0; // one element in result
+    Mat result = Mat(m.cols, n.rows, CV_32FC1);
+    int i, j, k;
+    for (i=0; i<n.cols; i++) {
+        for (j=0; j<m.rows; j++) {
+            for (k=0; k<m.cols; k++) {
+                sum += m.at<float>(j,k) * n.at<float>(k,i);
+            }
+            result.at<float>(j,i);
+            sum = 0;
+        }
+    }
+    return result;
 }
