@@ -65,9 +65,21 @@ void constructInverseRotationMatrix(float angle, Mat dest) {
     rotMatrix.copyTo(dest);
 }
 
+/*
+ * Two element vector array for stereo pair
+ * IPD is the distance between pupils
+ */
+//Vec3f stereoTranslation(float ipd) {
+//    Vec3f pair = {ipd/2, 0.0, 0.0};
+//    
+//    return pair;
+//}
+
 // Converts image pixel into a 3D point
 // Needs image width, height and depth
 Vec3f reconstruct3D(Vec3f point, int width, int height) {
+    
+    float ipd = 30.0; // pupil distance
     
     // Scale and Translate
     point = scale(point, scaleFactor, width, height, point[2]) + translationVector;
@@ -77,15 +89,31 @@ Vec3f reconstruct3D(Vec3f point, int width, int height) {
     
     // rotate
     Mat rotationMatrix = Mat(3, 3, CV_32FC1, Scalar(0.0));
-    constructInverseRotationMatrix(PI/5, rotationMatrix);
+    constructInverseRotationMatrix(10, rotationMatrix);  // TODO calculate beta
     vec = rotationMatrix * vec;
     
-    //printMatrix(rotationMatrix);
+    // generate stereo pair
+    Vec3f stereoLeftVector  = {-ipd/2, 0, 0};
+    Vec3f stereoRightVector = { ipd/2, 0, 0};
+    Mat stereoLeftTranslation  = Mat(3, 1, CV_32FC1, &stereoLeftVector);
+    Mat stereoRightTranslation = Mat(3, 1, CV_32FC1, &stereoRightVector);
     
-    // Convert back to a Vec3f
-    point[0] = vec.at<float>(0,0);
-    point[1] = vec.at<float>(1,0);
-    point[2] = vec.at<float>(2,0);
+    // TODO render to two viewports
+    Mat leftView  = vec + stereoLeftTranslation;
+    Mat rightView = vec + stereoRightTranslation;
+    
+    // Inverse rotate
+    constructRotationMatrix(10, rotationMatrix);
+    leftView  = rotationMatrix * leftView;
+    rightView = rotationMatrix * rightView;
+    
+    // Convert leftView back to a Vec3f
+    point[0] = leftView.at<float>(0,0);
+    point[1] = leftView.at<float>(1,0);
+    point[2] = leftView.at<float>(2,0);
+    
+    // Translate and scale back
+    point = scale(point, 1+scaleFactor, width, height, point[2]) - translationVector;
     
     return point;
 }
