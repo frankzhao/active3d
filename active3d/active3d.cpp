@@ -314,12 +314,9 @@ void renderForeground(float r_x, float r_y, float r_z, int eye) {
                 
                 // 3D reconstruction
                 Vec3f point = {(float) j, (float) i, (float) depth/10};
-                point = reconstruct3D(point, img.cols, img.rows);
                 
-                /* EXPERIMENTAL - rotate about y axis */
-                //new_point = AffineRotate(j, rows - i, depth, r_x, r_y, r_z, cols, rows);
-                //glVertex3f( (GLfloat) new_point.x, (GLfloat) new_point.y, (GLfloat) (new_point.z)/rows );
-                //printf("(%f, %f, %f)\n", new_point.x, new_point.y, new_point.z);
+                // reconstruct 3D using transformation.cpp method
+                point = reconstruct3D(point, img.cols, img.rows, eye);
                 
                 // OpenGl stores pixels upside down to OpenCV
                 glVertex3f( (GLfloat) point[0], (GLfloat) rows - point[1], (GLfloat) point[2] );
@@ -370,8 +367,7 @@ void rotate (int key, int x, int y) {
 
 /* openGL */
 //this is the "display" void, we will use it to clear the screen:
-void display (){
-    
+void display () {
     // Clear the colour and depth buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
