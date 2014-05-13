@@ -282,7 +282,8 @@ void release_memory() {
     refineMask.release();
 }
 
-void renderForeground(float r_x, float r_y, float r_z) {
+// render foreground, with rotation and eye (left: 0, right :1)
+void renderForeground(float r_x, float r_y, float r_z, int eye) {
 
     //float cameraHeight = 1.6;
     float renderDepth = (worldDepthMax - worldDepthMin);
@@ -380,8 +381,16 @@ void display (){
     glRotatef(rotation_y, 1.0, 0.0, 0.0);
     glRotatef(rotation_x, 0.0, 1.0, 0.0);
     
+    // left
+    glViewport(0.0, 0.0, img.cols, img.rows);
     glBegin(GL_POINTS);
-    renderForeground(0,0,0);
+    renderForeground(0,0,0,0);
+    glEnd();
+    
+    // right
+    glViewport(img.cols, 0.0, img.cols, img.rows);
+    glBegin(GL_POINTS);
+    renderForeground(0,0,0,1);
     glEnd();
 
     glFlush();
@@ -395,7 +404,7 @@ int renderGL (int argc, char **argv){
     glutInitDisplayMode ( GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
     
     glutInitWindowPosition(400,400);
-    glutInitWindowSize(img.cols,img.rows);
+    glutInitWindowSize(img.cols * 2,img.rows);
     glutCreateWindow ("GLUT");
     
     glEnable(GL_DEPTH_TEST);    // Enable depth rendering
