@@ -57,7 +57,6 @@ Rect rect;
 
 // world depth for opengl
 float worldDepthMin, worldDepthMax;
-float rotation_x = 0, rotation_y = 0;
 
 
 /*********************
@@ -365,19 +364,20 @@ void renderBackground(float r_x, float r_y, float r_z, int eye) {
 }
 
 // Arrow keys for rotation
+float translation_x = 0, translation_y = 0;
 void rotate (int key, int x, int y) {
     switch (key) {
         case GLUT_KEY_UP:
-            rotation_y -= 5;
+            translation_y -= 5;
             break;
         case GLUT_KEY_DOWN:
-            rotation_y += 5;
+            translation_y += 5;
             break;
         case GLUT_KEY_LEFT:
-            rotation_x -= 5;
+            translation_x -= 5;
             break;
         case GLUT_KEY_RIGHT:
-            rotation_x += 5;
+            translation_x += 5;
             break;
         default:
             break;
@@ -396,10 +396,13 @@ void display () {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); // Reset transformations
     
-    glRotatef(rotation_y, 1.0, 0.0, 0.0);
-    glRotatef(rotation_x, 0.0, 1.0, 0.0);
+    gluLookAt(translation_x, translation_y, worldDepthMax/2, 0, 0, 0, 0, 1, 0); // TODO max depth of object
+    
+    //glRotatef(rotation_y, 1.0, 0.0, 0.0);
+    //glRotatef(rotation_x, 0.0, 1.0, 0.0);
     
     // left eye
+    //gluLookAt(img.cols/2, img.rows/2, worldDepthMax, img.cols/2, img.rows/2, 0, 0, 1, 0);
     glViewport(0.0, 0.0, img.cols, img.rows);
     glBegin(GL_POINTS);
     renderForeground(0,0,0,LEFT_EYE);
