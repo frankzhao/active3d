@@ -13,6 +13,7 @@
 		0125A5B418E1B4FB00004934 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0125A5B318E1B4FB00004934 /* Cocoa.framework */; };
 		01655B881913D5CF00D51A95 /* active3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0174FBD11913BB5900484DDA /* active3d.cpp */; };
 		01655B891913D5D300D51A95 /* utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0174FBD31913BB5900484DDA /* utility.cpp */; };
+		016A7E731924F68D008A1998 /* libopencv_photo.2.4.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 016A7E721924F68D008A1998 /* libopencv_photo.2.4.8.dylib */; };
 		01DD1FE218BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 01DD1FE018BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib */; };
 		01DD1FE318BA1ADF00D12CF0 /* libopencv_highgui.2.4.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 01DD1FE118BA1ADF00D12CF0 /* libopencv_highgui.2.4.8.dylib */; };
 		01DD1FE718BA1BED00D12CF0 /* libopencv_imgproc.2.4.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 01DD1FE618BA1BED00D12CF0 /* libopencv_imgproc.2.4.8.dylib */; };
@@ -36,6 +37,7 @@
 		0125A5AF18E1B4E200004934 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		0125A5B118E1B4F200004934 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 		0125A5B318E1B4FB00004934 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		016A7E721924F68D008A1998 /* libopencv_photo.2.4.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_photo.2.4.8.dylib; path = ../../../../opt/local/lib/libopencv_photo.2.4.8.dylib; sourceTree = "<group>"; };
 		0174FBD11913BB5900484DDA /* active3d.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = active3d.cpp; sourceTree = "<group>"; };
 		0174FBD21913BB5900484DDA /* active3d.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = active3d.1; sourceTree = "<group>"; };
 		0174FBD31913BB5900484DDA /* utility.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = utility.cpp; sourceTree = "<group>"; };
@@ -56,6 +58,7 @@
 				0125A5B018E1B4E200004934 /* OpenGL.framework in Frameworks */,
 				01DD1FE718BA1BED00D12CF0 /* libopencv_imgproc.2.4.8.dylib in Frameworks */,
 				01DD1FE218BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib in Frameworks */,
+				016A7E731924F68D008A1998 /* libopencv_photo.2.4.8.dylib in Frameworks */,
 				01DD1FE318BA1ADF00D12CF0 /* libopencv_highgui.2.4.8.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -83,6 +86,7 @@
 				0125A5B118E1B4F200004934 /* GLUT.framework */,
 				0125A5AF18E1B4E200004934 /* OpenGL.framework */,
 				01DD1FE618BA1BED00D12CF0 /* libopencv_imgproc.2.4.8.dylib */,
+				016A7E721924F68D008A1998 /* libopencv_photo.2.4.8.dylib */,
 				01DD1FE018BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib */,
 				01DD1FE118BA1ADF00D12CF0 /* libopencv_highgui.2.4.8.dylib */,
 				0174FBD01913BB5900484DDA /* active3d */,
@@ -229,6 +233,7 @@
 		01DD1FCD18B9FC5200D12CF0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
 				CLANG_CXX_LIBRARY = "libc++";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -244,6 +249,8 @@
 					"$(inherited)",
 					/opt/local/lib,
 				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = active3d;
 				SDKROOT = macosx;
 			};
@@ -252,6 +259,7 @@
 		01DD1FCE18B9FC5200D12CF0 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
 				CLANG_CXX_LIBRARY = "libc++";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -267,6 +275,8 @@
 					"$(inherited)",
 					/opt/local/lib,
 				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = active3d;
 				SDKROOT = macosx;
 			};

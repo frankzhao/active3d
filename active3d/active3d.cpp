@@ -37,6 +37,9 @@
 #define MODE_RECTMODE 1
 #define MODE_PAINTMODE 2
 
+#define LEFT_EYE 0
+#define RIGHT_EYE 1
+
 #define PI 3.14159265
 
 using namespace cv;
@@ -297,7 +300,7 @@ void renderForeground(float r_x, float r_y, float r_z, int eye) {
         for (int j=0; j<cols; j++) {
 
             // if the pixel is marked fg, set colour and add to array
-            if (fgMask.at<uchar>(i,j) == 1) {
+            if (fgMask.at<uchar>(i,j) == GC_FGD) {
                 // set colour
                 Vec3b pixel = imgWorkingCopy.at<Vec3b>(i,j);
                 
@@ -313,7 +316,10 @@ void renderForeground(float r_x, float r_y, float r_z, int eye) {
                 }
                 
                 // 3D reconstruction
-                Vec3f point = {(float) j, (float) i, (float) depth/10};
+                Vec3f point;
+                point[0] = (float) j;
+                point[1] = (float) i;
+                point[2] = (float) depth/10;
                 
                 // reconstruct 3D using transformation.cpp method
                 point = reconstruct3D(point, img.cols, img.rows, eye);
@@ -327,20 +333,36 @@ void renderForeground(float r_x, float r_y, float r_z, int eye) {
     }
 }
 
-//void glutMouseCallback(int button, int state, int x, int y) {
-//    printf("%d %d %d %d\n", button, state, x, y);
-//    
-//    while (state == 1) {
-//        glClear( GL_COLOR_BUFFER_BIT);
-//        
-//        glBegin(GL_POINTS);
-//        renderForeground(0,mask.rows/y,0);
-//        glEnd();
-//        
-//        glFlush();
-//    }
-//    
-//}
+// render foreground, with rotation and eye (left: 0, right :1)
+void renderBackground(float r_x, float r_y, float r_z, int eye) {
+    
+    int rows = img.rows, cols = img.cols;
+    Mat bg_inpainted = img.clone();
+    inpaint(img, fgMask, bg_inpainted, 5.0, INPAINT_NS);
+    
+    for (int i=0; i<rows; i++) {
+        for (int j=0; j<cols; j++) {
+            // set colour
+            Vec3b pixel = bg_inpainted.at<Vec3b>(i,j);
+            
+            glColor3f(pixel[2]/255.0, pixel[1]/255.0, pixel[0]/255.0);
+            
+            // 3D reconstruction
+            Vec3f point;
+            point[0] = (float) j;
+            point[1] = (float) i;
+            point[2] = (float) -200; // TODO get max depth of object
+            
+            // reconstruct 3D using transformation.cpp method
+            //point = reconstruct3D(point, img.cols, img.rows, eye);
+            
+            // OpenGl stores pixels upside down to OpenCV
+            glVertex3f( (GLfloat) point[0], (GLfloat) rows - point[1], (GLfloat) point[2] );
+            //glVertex3f( (GLfloat) j, (GLfloat) rows - i, (GLfloat) depth );
+            //printf("%d %f\n", depthValue, depth);
+        }
+    }
+}
 
 // Arrow keys for rotation
 void rotate (int key, int x, int y) {
@@ -377,16 +399,24 @@ void display () {
     glRotatef(rotation_y, 1.0, 0.0, 0.0);
     glRotatef(rotation_x, 0.0, 1.0, 0.0);
     
-    // left
+    // left eye
     glViewport(0.0, 0.0, img.cols, img.rows);
     glBegin(GL_POINTS);
-    renderForeground(0,0,0,0);
+    renderForeground(0,0,0,LEFT_EYE);
     glEnd();
     
-    // right
+    glBegin(GL_POINTS);
+    renderBackground(0,0,0,LEFT_EYE);
+    glEnd();
+    
+    // right eye
     glViewport(img.cols, 0.0, img.cols, img.rows);
     glBegin(GL_POINTS);
-    renderForeground(0,0,0,1);
+    renderForeground(0,0,0,RIGHT_EYE);
+    glEnd();
+    
+    glBegin(GL_POINTS);
+    renderBackground(0,0,0,RIGHT_EYE);
     glEnd();
 
     glFlush();

@@ -23,16 +23,16 @@ using namespace std;
 
 // Define transformation matrices
 // {-x, y, z} z is positive towards us
-const float height = -5.0;
+const float camera_height = -5.0;
 const float dist = -10.0;
 const float scaleFactor = 0.7;
-const Vec3f translationVector = {0, height, dist};
 
 // Scales a vector about the centre of the image
 // scale(vector, sfactor, img width, img height, img depth)
 Vec3f scale(Vec3f point, float scaleFactor, int x, int y, int z) {
     // Translate to top left
-    Vec3f tvec = {x/2.0f, y/2.0f, -z/2.0f};
+    Vec3f tvec;
+    tvec[0] = x/2.0f; tvec[1] = y/2.0f; tvec[2] = -z/2.0f;
     point = point - tvec;
     
     point = scaleFactor * point;
@@ -74,6 +74,10 @@ void constructInverseRotationMatrix(float angle, Mat dest) {
 // Needs image width, height and depth
 Vec3f reconstruct3D(Vec3f point, int width, int height, int eye) {
     
+    Vec3f translationVector;
+    translationVector[0] = 0;
+    translationVector[1] = camera_height;
+    translationVector[2] = dist;
     float ipd = 30.0; // pupil distance
     
     // Scale and Translate
@@ -90,11 +94,13 @@ Vec3f reconstruct3D(Vec3f point, int width, int height, int eye) {
     // generate stereo pair
     Mat view;
     if (eye == 0) {
-        Vec3f stereoLeftVector  = {-ipd/2, 0, 0};
+        Vec3f stereoLeftVector;
+        stereoLeftVector[0] = -ipd/2; stereoLeftVector[1] = 0, stereoLeftVector[2] = 0;
         Mat stereoLeftTranslation  = Mat(3, 1, CV_32FC1, &stereoLeftVector);
         view  = vec + stereoLeftTranslation;
     } else if (eye == 1) {
-        Vec3f stereoRightVector = { ipd/2, 0, 0};
+        Vec3f stereoRightVector;
+        stereoRightVector[0] = ipd/2; stereoRightVector[1] = 0, stereoRightVector[2] = 0;
         Mat stereoRightTranslation = Mat(3, 1, CV_32FC1, &stereoRightVector);
         view = vec + stereoRightTranslation;
     }
