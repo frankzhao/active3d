@@ -313,14 +313,13 @@ void drawPoint(Vec3b point, int i, int j, int eye) {
     point = reconstruct3D(vertex, img.cols, img.rows, eye);
     
     // OpenGl stores pixels upside down to OpenCV
-    glVertex3f( (GLfloat) point[0], (GLfloat) rows - point[1], (GLfloat) point[2] );
+    glVertex3f( (GLfloat) vertex[0], (GLfloat) rows - vertex[1], (GLfloat) vertex[2] );
     //glVertex3f( (GLfloat) j, (GLfloat) rows - i, (GLfloat) depth );
     //printf("%d %f\n", depthValue, depth);
 }
 
 // render foreground, with rotation and eye (left: 0, right :1)
 void renderForeground(float r_x, float r_y, float r_z, int eye) {
-    Coord new_point;
 
     int rows = fgMask.rows, cols = fgMask.cols;
 
@@ -329,7 +328,8 @@ void renderForeground(float r_x, float r_y, float r_z, int eye) {
 
             // if the pixel is marked fg, draw point vector
             if (fgMask.at<uchar>(i,j) == GC_FGD) {
-                // Create an array of three triangle verticies
+                
+                Vec3b point = imgWorkingCopy.at<Vec3b>(i, j);
                 
                 // for each point, set colour and draw the reconstructed result
                 // upper triangle mesh
@@ -380,18 +380,19 @@ void renderBackground(float r_x, float r_y, float r_z, int eye) {
 // Arrow keys for rotation
 float translation_x = 0, translation_y = 0;
 void rotate (int key, int x, int y) {
+    int amount = 50;
     switch (key) {
         case GLUT_KEY_UP:
-            translation_y -= 5;
+            translation_y -= amount;
             break;
         case GLUT_KEY_DOWN:
-            translation_y += 5;
+            translation_y += amount;
             break;
         case GLUT_KEY_LEFT:
-            translation_x -= 5;
+            translation_x += amount;
             break;
         case GLUT_KEY_RIGHT:
-            translation_x += 5;
+            translation_x -= amount;
             break;
         default:
             break;
