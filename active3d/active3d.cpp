@@ -284,13 +284,42 @@ void release_memory() {
     refineMask.release();
 }
 
-// render foreground, with rotation and eye (left: 0, right :1)
-void renderForeground(float r_x, float r_y, float r_z, int eye) {
-
+void drawPoint(Vec3b point, int i, int j, int eye) {
+    float depth; // normalised depth
+    int depthValue; // depth value from mask
     //float cameraHeight = 1.6;
     float renderDepth = (worldDepthMax - worldDepthMin);
-    int depthValue; // depth value from mask
-    float depth; // normalised depth
+    int rows = fgMask.rows;
+    
+    glColor3f(point[2]/255.0, point[1]/255.0, point[0]/255.0);
+    
+    // init glVertex, x -> horiz, y -> height, z -> depth
+    depthValue = depthMask.at<uchar>(i,j);
+    if (depthValue > 0) {
+        // normalise and set depth between min and max render depth
+        depth = (renderDepth / depthValue) - (renderDepth/2);
+    } else {
+        depth = 0;
+    }
+    
+    // 3D reconstruction
+    // three points make a triangle
+    Vec3f vertex;
+    vertex[0] = (float) j;
+    vertex[1] = (float) i;
+    vertex[2] = (float) depth/10;
+    
+    // reconstruct 3D using transformation.cpp method
+    point = reconstruct3D(vertex, img.cols, img.rows, eye);
+    
+    // OpenGl stores pixels upside down to OpenCV
+    glVertex3f( (GLfloat) point[0], (GLfloat) rows - point[1], (GLfloat) point[2] );
+    //glVertex3f( (GLfloat) j, (GLfloat) rows - i, (GLfloat) depth );
+    //printf("%d %f\n", depthValue, depth);
+}
+
+// render foreground, with rotation and eye (left: 0, right :1)
+void renderForeground(float r_x, float r_y, float r_z, int eye) {
     Coord new_point;
 
     int rows = fgMask.rows, cols = fgMask.cols;
@@ -298,35 +327,20 @@ void renderForeground(float r_x, float r_y, float r_z, int eye) {
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
 
-            // if the pixel is marked fg, set colour and add to array
+            // if the pixel is marked fg, draw point vector
             if (fgMask.at<uchar>(i,j) == GC_FGD) {
-                // set colour
-                Vec3b pixel = imgWorkingCopy.at<Vec3b>(i,j);
+                // Create an array of three triangle verticies
                 
-                glColor3f(pixel[2]/255.0, pixel[1]/255.0, pixel[0]/255.0);
-
-                // init glVertex, x -> horiz, y -> height, z -> depth
-                depthValue = depthMask.at<uchar>(i,j);
-                if (depthValue > 0) {
-                    // normalise and set depth between min and max render depth
-                    depth = (renderDepth / depthValue) - (renderDepth/2);
-                } else {
-                    depth = 0;
-                }
+                // for each point, set colour and draw the reconstructed result
+                // upper triangle mesh
+                drawPoint(imgWorkingCopy.at<Vec3b>(i,  j),   i,   j, eye);
+                drawPoint(imgWorkingCopy.at<Vec3b>(i,j+1),   i, j+1, eye);
+                drawPoint(imgWorkingCopy.at<Vec3b>(i+1,j), i+1,   j, eye);
                 
-                // 3D reconstruction
-                Vec3f point;
-                point[0] = (float) j;
-                point[1] = (float) i;
-                point[2] = (float) depth/10;
-                
-                // reconstruct 3D using transformation.cpp method
-                point = reconstruct3D(point, img.cols, img.rows, eye);
-                
-                // OpenGl stores pixels upside down to OpenCV
-                glVertex3f( (GLfloat) point[0], (GLfloat) rows - point[1], (GLfloat) point[2] );
-                //glVertex3f( (GLfloat) j, (GLfloat) rows - i, (GLfloat) depth );
-                //printf("%d %f\n", depthValue, depth);
+                // lower triangle mesh
+                drawPoint(imgWorkingCopy.at<Vec3b>(i+1,  j), i+1,   j, eye);
+                drawPoint(imgWorkingCopy.at<Vec3b>(i  ,j+1),   i, j+1, eye);
+                drawPoint(imgWorkingCopy.at<Vec3b>(i+1,j+1), i+1, j+1, eye);
             }
         }
     }
@@ -404,7 +418,7 @@ void display () {
     // left eye
     //gluLookAt(img.cols/2, img.rows/2, worldDepthMax, img.cols/2, img.rows/2, 0, 0, 1, 0);
     glViewport(0.0, 0.0, img.cols, img.rows);
-    glBegin(GL_POINTS);
+    glBegin(GL_TRIANGLES);
     renderForeground(0,0,0,LEFT_EYE);
     glEnd();
     
