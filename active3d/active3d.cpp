@@ -380,7 +380,7 @@ void renderBackground(float r_x, float r_y, float r_z, int eye) {
 // Arrow keys for rotation
 float translation_x = 0, translation_y = 0;
 void rotate (int key, int x, int y) {
-    int amount = 50;
+    int amount = 250;
     switch (key) {
         case GLUT_KEY_UP:
             translation_y -= amount;

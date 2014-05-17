@@ -127,7 +127,7 @@ Mat depthMap(Mat mask, Mat dest, const string &winname, int iterations, bool ren
                     if (render) {
                         destv = Vec3b(0,0, depth * ((int) (255 / iterations)) );
                     }
-                    depthMask.at<uchar>(i,j) = depth;
+                    depthMask.at<uchar>(i,j) = depth/rows;
                 }
 
             }
