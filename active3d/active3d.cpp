@@ -45,7 +45,7 @@
 using namespace cv;
 using namespace std;
 
-string windowName = "Viewer";
+const string windowName = "Viewer";
 int key; // keyboard input
 int mode = 0; //current mode we are in
 int mouseX1 = 0, mouseY1 = 0, mouseX2 = 0, mouseY2 = 0;

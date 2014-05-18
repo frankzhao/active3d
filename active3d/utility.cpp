@@ -142,41 +142,6 @@ Mat depthMap(Mat mask, Mat dest, const string &winname, int iterations, bool ren
     return depthMask;
 }
 
-/* EXPERIMENTAL - rotate angle in radians*/
-Coord rotate(float x, float y, float z, float r_x, float r_y, float r_z) {
-    float x_new, y_new, z_new;
-    
-    // rotate x
-    x_new = x;
-    y_new = y*cos(r_x) + z*sin(r_x);
-    z_new = z*cos(r_x) - y*sin(r_y);
-    
-    // rotate y
-    x_new = x_new*cos(r_y) - z_new*sin(r_y);
-    y_new = y_new;
-    z_new = x_new*sin(r_y) + z_new*cos(r_y);
-    
-    // rotate z
-    x_new = x_new*cos(r_z) + y_new*sin(r_z);
-    y_new = y_new*cos(r_z) - x_new*sin(r_z);
-    z_new = z_new;
-        
-    Coord coord = Coord(x_new, y_new, z_new);
-    
-    return coord;
-}
-
-Coord AffineRotate(float x, float y, float z, float r_x, float r_y, float r_z, int width, int height) {
-    
-    // Translate to 0,0 and rotate
-    Coord new_point = rotate(x - (width/2), y - (height/2), z, r_x, r_y, r_z);
-
-    // Translate back after rotation
-    Coord final_point = Coord(new_point.x + (width/2), new_point.y + (height/2), new_point.z);
-    
-    return final_point;
-}
-
 // Print float matricies nicely
 void printMatrix(Mat m) {
     int i, j;
@@ -187,23 +152,4 @@ void printMatrix(Mat m) {
         cout << endl;
     }
     cout << endl;
-}
-
-// Simple matrix multiplication
-Mat matrixMultiply(Mat m, Mat n) {
-    assert(m.cols == n.rows);
-    
-    int sum = 0; // one element in result
-    Mat result = Mat(m.cols, n.rows, CV_32FC1);
-    int i, j, k;
-    for (i=0; i<n.cols; i++) {
-        for (j=0; j<m.rows; j++) {
-            for (k=0; k<m.cols; k++) {
-                sum += m.at<float>(j,k) * n.at<float>(k,i);
-            }
-            result.at<float>(j,i);
-            sum = 0;
-        }
-    }
-    return result;
 }

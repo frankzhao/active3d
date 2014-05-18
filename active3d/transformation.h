@@ -4,7 +4,7 @@
 //
 //  Created by Frank Zhao on 3/05/2014.
 //  Copyright (c) 2014 Frank Zhao. All rights reserved.
-//  frank.zhao@anu.edu.au
+//  <frank.zhao@anu.edu.au>
 //
 
 #ifndef __active3d__transformation__
