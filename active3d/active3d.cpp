@@ -51,7 +51,8 @@ int mode = 0; //current mode we are in
 int mouseX1 = 0, mouseY1 = 0, mouseX2 = 0, mouseY2 = 0;
 bool drag = false, drawing = true, paintFG = false;
 
-Mat img, imgWorkingCopy, viewport;
+const Mat img;
+Mat imgWorkingCopy, viewport;
 Mat mask, refineMask, fgMask, fgModel, bgModel, depthMask;
 Rect rect;
 
