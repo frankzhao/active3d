@@ -51,7 +51,7 @@ int mode = 0; //current mode we are in
 int mouseX1 = 0, mouseY1 = 0, mouseX2 = 0, mouseY2 = 0;
 bool drag = false, drawing = true, paintFG = false;
 
-const Mat img;
+Mat img;
 Mat imgWorkingCopy, viewport;
 Mat mask, refineMask, fgMask, fgModel, bgModel, depthMask;
 Rect rect;
@@ -308,7 +308,7 @@ void drawPoint(Vec3b point, int i, int j, int eye) {
     Vec3f vertex;
     vertex[0] = (float) j;
     vertex[1] = (float) i;
-    vertex[2] = (float) depth/10;
+    vertex[2] = (float) depth;
     
     // reconstruct 3D using transformation.cpp method
     point = reconstruct3D(vertex, img.cols, img.rows, eye);
@@ -507,7 +507,7 @@ int main(int argc, char * argv[]) {
             // begin OpenGL rendering
             worldDepthMin = -img.cols;
             worldDepthMax =  img.cols;
-            depthMask = depthMap(fgMask, depthMask, "Viewer", 100, false);
+            depthMask = depthMap(fgMask, depthMask, "Viewer", 100, true);
             
             cvDestroyAllWindows();
             
