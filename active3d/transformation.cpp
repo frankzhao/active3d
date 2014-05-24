@@ -129,7 +129,7 @@ Vec3f reconstruct3D(Vec3f point, int width, int height, int eye) {
 }
 
 // Converts point into GL_POINT
-void drawPoint(Vec3b point, Mat depthMask, Mat fgMask, int eye) {
+void drawPoint(Vec3b point, int x, int y, Mat depthMask, Mat fgMask, int eye) {
     float depth; // normalised depth
     //float cameraHeight = 1.6;
     int rows = fgMask.rows;
@@ -138,13 +138,13 @@ void drawPoint(Vec3b point, Mat depthMask, Mat fgMask, int eye) {
     glColor3f(point[2]/255.0, point[1]/255.0, point[0]/255.0);
     
     // init glVertex, x -> horiz, y -> height, z -> depth
-    depth = depthMask.at<float>(point[0], point[1]);
+    depth = depthMask.at<float>(x, y);
     
     // 3D reconstruction
     // three points make a triangle
     Vec3f vertex;
-    vertex[0] = (float) point[0];
-    vertex[1] = (float) point[1];
+    vertex[0] = (float) y;
+    vertex[1] = (float) x;
     vertex[2] = (float) depth;
     
     // reconstruct 3D using transformation.cpp method

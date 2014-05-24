@@ -299,14 +299,14 @@ void renderForeground(float r_x, float r_y, float r_z, int eye) {
                 
                 // for each point, set colour and draw the reconstructed result
                 // upper triangle mesh
-                drawPoint(imgWorkingCopy.at<Vec3f>(i,  j), depthMask, fgMask, eye);
-                drawPoint(imgWorkingCopy.at<Vec3f>(i,j+1), depthMask, fgMask, eye);
-                drawPoint(imgWorkingCopy.at<Vec3f>(i+1,j), depthMask, fgMask, eye);
+                drawPoint(imgWorkingCopy.at<Vec3b>(i,  j), i, j, depthMask, fgMask, eye);
+                drawPoint(imgWorkingCopy.at<Vec3b>(i,j+1), i, j+1, depthMask, fgMask, eye);
+                drawPoint(imgWorkingCopy.at<Vec3b>(i+1,j), i+1, j, depthMask, fgMask, eye);
                 
                 // lower triangle mesh
-                drawPoint(imgWorkingCopy.at<Vec3f>(i+1,  j), depthMask, fgMask, eye);
-                drawPoint(imgWorkingCopy.at<Vec3f>(i  ,j+1), depthMask, fgMask, eye);
-                drawPoint(imgWorkingCopy.at<Vec3f>(i+1,j+1), depthMask, fgMask, eye);
+                drawPoint(imgWorkingCopy.at<Vec3b>(i+1,  j), i+1, j, depthMask, fgMask, eye);
+                drawPoint(imgWorkingCopy.at<Vec3b>(i  ,j+1), i, j+1, depthMask, fgMask, eye);
+                drawPoint(imgWorkingCopy.at<Vec3b>(i+1,j+1), i+1, j+1, depthMask, fgMask, eye);
             }
         }
     }
@@ -395,7 +395,7 @@ void display () {
     
     // right eye
     glViewport(img.cols, 0.0, img.cols, img.rows);
-    glBegin(GL_POINTS);
+    glBegin(GL_TRIANGLES);
     renderForeground(0,0,0,RIGHT_EYE);
     glEnd();
     

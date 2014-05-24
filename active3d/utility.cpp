@@ -102,15 +102,14 @@ int countNeighbours(Mat m, int v, int row, int col) {
 
 // Generate depth map with specified iterations
 float depthMap(Mat mask, Mat dest, const string &winname, int iterations) {
-    float maxdepth = 0, depth = 0;
+    float maxdepth = 0, depth = 0, distance = 0;
     int rows = mask.rows, cols = mask.cols;
     
-    float distance;
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
-            distance = sqrt( pow((mask.cols/2 - j), 2) + pow((mask.rows/2 - i), 2));
+            distance = sqrt( std::pow((mask.cols/2 - j), 2.0f) + std::pow((mask.rows/2 - i), 2.0f));
             depth = (pow(distance/ (max(mask.rows, mask.cols)/30),2));
-            dest.at<uchar>(i,j) = depth;
+            dest.at<float>(i,j) = depth;
             
             if (depth > maxdepth) {
                 maxdepth = depth;

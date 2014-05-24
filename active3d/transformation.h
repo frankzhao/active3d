@@ -22,4 +22,4 @@ using namespace cv;
 Vec3f reconstruct3D(Vec3f point, int width, int height, int eye);
 
 // Converts point into GL_POINT
-void drawPoint(Vec3b point, Mat depthMask, Mat fgMask, int eye);
+void drawPoint(Vec3b point, int x, int y, Mat depthMask, Mat fgMask, int eye);
