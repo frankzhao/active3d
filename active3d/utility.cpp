@@ -110,42 +110,20 @@ Mat depthMap(Mat mask, Mat dest, const string &winname, int iterations, bool ren
     //apply depth contour
     int count = 0;
     //for (int depth=2; depth<iterations; depth++) {
-        prevMask = depthMask.clone();
-    float depth;
-        for (int i=0; i<rows; i++) {
-            for (int j=0; j<cols; j++) {
-                Vec3b& destv = dest.at<Vec3b>(i,j);
-                
-                depth = floor(sqrt((depthMask.cols/2 - j)^2 + (depthMask.rows/2 - i)^2));
-                cout << floor(sqrt((depthMask.cols/2 - j)^2 + (depthMask.rows/2 - i)^2)) << endl;
-//                if (render) {
-//                    destv = Vec3b(0,0, depth * ((int) (255 / depth)) );
-//                }
-                depthMask.at<uchar>(i,j) = depth;
-                
-//                // count neighbouring pixels
-//                if (prevMask.at<uchar>(i,j) == depth-1) {
-//                    count = countNeighbours(prevMask, depth-1, i, j);
-//
-//                    //printf("%d ", count);
-//                }
-//                
-//                // write depth
-//                if (count == 8) {
-//                    if (render) {
-//                        destv = Vec3b(0,0, depth * ((int) (255 / iterations)) );
-//                    }
-//                    depthMask.at<uchar>(i,j) = depth/rows;
-//                }
-
-            }
-        }
-  //  }
-    prevMask.release();
+    prevMask = depthMask.clone();
     
-//    if (render) {
-//        imshow(winname, dest);
-//    }
+    float depth;
+    float distance;
+    for (int i=0; i<rows; i++) {
+        for (int j=0; j<cols; j++) {
+            Vec3b& destv = dest.at<Vec3b>(i,j);
+            
+            distance = sqrt( pow((depthMask.cols/2 - j), 2) + pow((depthMask.rows/2 - i), 2));
+            depthMask.at<uchar>(i,j) = (int) (pow(distance/ (max(depthMask.rows, depthMask.cols)/30),2));
+        }
+    }
+    
+    prevMask.release();
     
     return depthMask;
 }

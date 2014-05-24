@@ -295,13 +295,7 @@ void drawPoint(Vec3b point, int i, int j, int eye) {
     glColor3f(point[2]/255.0, point[1]/255.0, point[0]/255.0);
     
     // init glVertex, x -> horiz, y -> height, z -> depth
-    depthValue = depthMask.at<uchar>(i,j);
-    if (depthValue > 0) {
-        // normalise and set depth between min and max render depth
-        depth = (renderDepth / depthValue) - (renderDepth/2);
-    } else {
-        depth = 0;
-    }
+    depth = depthMask.at<uchar>(i,j);
     
     // 3D reconstruction
     // three points make a triangle
@@ -365,7 +359,7 @@ void renderBackground(float r_x, float r_y, float r_z, int eye) {
             Vec3f point;
             point[0] = (float) j;
             point[1] = (float) i;
-            point[2] = (float) -200; // TODO get max depth of object
+            point[2] = (float) 0; // TODO get max depth of object
             
             // reconstruct 3D using transformation.cpp method
             //point = reconstruct3D(point, img.cols, img.rows, eye);
@@ -381,7 +375,7 @@ void renderBackground(float r_x, float r_y, float r_z, int eye) {
 // Arrow keys for rotation
 float translation_x = 0, translation_y = 0;
 void rotate (int key, int x, int y) {
-    int amount = 250;
+    int amount = 125;
     switch (key) {
         case GLUT_KEY_UP:
             translation_y -= amount;
