@@ -88,7 +88,7 @@ Vec3f reconstruct3D(Vec3f point, int width, int height, int eye) {
     translationVector[0] = 0;
     translationVector[1] = camera_height;
     translationVector[2] = dist;
-    float ipd = 30.0; // pupil distance
+    float ipd = 200.0; // pupil distance
     
     // Scale and Translate
     point = scale(point, scaleFactor, width, height, point[2]) + translationVector;
