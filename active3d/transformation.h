@@ -20,3 +20,6 @@ using namespace cv;
 // Converts image pixel into a 3D point
 // Needs image width, height and depth
 Vec3f reconstruct3D(Vec3f point, int width, int height, int eye);
+
+// Converts point into GL_POINT
+void drawPoint(Vec3b point, Mat depthMask, Mat fgMask, int eye)

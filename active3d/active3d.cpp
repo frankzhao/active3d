@@ -58,6 +58,7 @@ Rect rect;
 
 // world depth for opengl
 float worldDepthMin, worldDepthMax;
+float maxfgdepth;
 
 
 /*********************
@@ -285,34 +286,6 @@ void release_memory() {
     refineMask.release();
 }
 
-void drawPoint(Vec3b point, int i, int j, int eye) {
-    float depth; // normalised depth
-    int depthValue; // depth value from mask
-    //float cameraHeight = 1.6;
-    float renderDepth = (worldDepthMax - worldDepthMin);
-    int rows = fgMask.rows;
-    
-    glColor3f(point[2]/255.0, point[1]/255.0, point[0]/255.0);
-    
-    // init glVertex, x -> horiz, y -> height, z -> depth
-    depth = depthMask.at<uchar>(i,j);
-    
-    // 3D reconstruction
-    // three points make a triangle
-    Vec3f vertex;
-    vertex[0] = (float) j;
-    vertex[1] = (float) i;
-    vertex[2] = (float) depth;
-    
-    // reconstruct 3D using transformation.cpp method
-    point = reconstruct3D(vertex, img.cols, img.rows, eye);
-    
-    // OpenGl stores pixels upside down to OpenCV
-    glVertex3f( (GLfloat) vertex[0], (GLfloat) rows - vertex[1], (GLfloat) vertex[2] );
-    //glVertex3f( (GLfloat) j, (GLfloat) rows - i, (GLfloat) depth );
-    //printf("%d %f\n", depthValue, depth);
-}
-
 // render foreground, with rotation and eye (left: 0, right :1)
 void renderForeground(float r_x, float r_y, float r_z, int eye) {
 
@@ -324,18 +297,16 @@ void renderForeground(float r_x, float r_y, float r_z, int eye) {
             // if the pixel is marked fg, draw point vector
             if (fgMask.at<uchar>(i,j) == GC_FGD) {
                 
-                Vec3b point = imgWorkingCopy.at<Vec3b>(i, j);
-                
                 // for each point, set colour and draw the reconstructed result
                 // upper triangle mesh
-                drawPoint(imgWorkingCopy.at<Vec3b>(i,  j),   i,   j, eye);
-                drawPoint(imgWorkingCopy.at<Vec3b>(i,j+1),   i, j+1, eye);
-                drawPoint(imgWorkingCopy.at<Vec3b>(i+1,j), i+1,   j, eye);
+                drawPoint(imgWorkingCopy.at<Vec3f>(i,  j), depthMask, fgMask, eye);
+                drawPoint(imgWorkingCopy.at<Vec3f>(i,j+1), depthMask, fgMask, eye);
+                drawPoint(imgWorkingCopy.at<Vec3f>(i+1,j), depthMask, fgMask, eye);
                 
                 // lower triangle mesh
-                drawPoint(imgWorkingCopy.at<Vec3b>(i+1,  j), i+1,   j, eye);
-                drawPoint(imgWorkingCopy.at<Vec3b>(i  ,j+1),   i, j+1, eye);
-                drawPoint(imgWorkingCopy.at<Vec3b>(i+1,j+1), i+1, j+1, eye);
+                drawPoint(imgWorkingCopy.at<Vec3f>(i+1,  j), depthMask, fgMask, eye);
+                drawPoint(imgWorkingCopy.at<Vec3f>(i  ,j+1), depthMask, fgMask, eye);
+                drawPoint(imgWorkingCopy.at<Vec3f>(i+1,j+1), depthMask, fgMask, eye);
             }
         }
     }
@@ -359,7 +330,7 @@ void renderBackground(float r_x, float r_y, float r_z, int eye) {
             Vec3f point;
             point[0] = (float) j;
             point[1] = (float) i;
-            point[2] = (float) 0; // TODO get max depth of object
+            point[2] = (float) -20; // TODO get max depth of object
             
             // reconstruct 3D using transformation.cpp method
             //point = reconstruct3D(point, img.cols, img.rows, eye);
@@ -501,7 +472,10 @@ int main(int argc, char * argv[]) {
             // begin OpenGL rendering
             worldDepthMin = -img.cols;
             worldDepthMax =  img.cols;
-            depthMask = depthMap(fgMask, depthMask, "Viewer", 100, true);
+            
+            // Create depth map
+            depthMask = Mat(img.rows, img.cols, CV_32FC1, 0.0f);
+            maxfgdepth = depthMap(fgMask, depthMask, "Viewer", 100);
             
             cvDestroyAllWindows();
             

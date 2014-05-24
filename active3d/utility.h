@@ -12,6 +12,7 @@
 #define ImageSegmentation_utility_h
 
 #include <opencv2/opencv.hpp>
+
 using namespace cv;
 
 int overlayImage(Mat src, Mat overlay, Mat dest);
@@ -24,7 +25,7 @@ int applyMask(Mat src, Mat mask, Mat dest);
 int countNeighbours(Mat m, int v, int row, int col);
 
 // Generate depth map with specified iterations
-Mat depthMap(Mat mask, Mat dest, const string &winname, int iterations, bool render);
+float depthMap(Mat mask, Mat dest, const string &winname, int iterations);
 
 // Print float matricies nicely
 void printMatrix(Mat m);

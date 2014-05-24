@@ -101,31 +101,24 @@ int countNeighbours(Mat m, int v, int row, int col) {
 }
 
 // Generate depth map with specified iterations
-Mat depthMap(Mat mask, Mat dest, const string &winname, int iterations, bool render) {
+float depthMap(Mat mask, Mat dest, const string &winname, int iterations) {
+    float maxdepth = 0, depth = 0;
+    int rows = mask.rows, cols = mask.cols;
     
-    Mat depthMask = mask.clone();
-    Mat prevMask = Mat(mask.rows, mask.cols, CV_8UC1, double(0)); // mask from previous iteration
-    int rows = depthMask.rows, cols = depthMask.cols;
-    
-    //apply depth contour
-    int count = 0;
-    //for (int depth=2; depth<iterations; depth++) {
-    prevMask = depthMask.clone();
-    
-    float depth;
     float distance;
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
-            Vec3b& destv = dest.at<Vec3b>(i,j);
+            distance = sqrt( pow((mask.cols/2 - j), 2) + pow((mask.rows/2 - i), 2));
+            depth = (pow(distance/ (max(mask.rows, mask.cols)/30),2));
+            dest.at<uchar>(i,j) = depth;
             
-            distance = sqrt( pow((depthMask.cols/2 - j), 2) + pow((depthMask.rows/2 - i), 2));
-            depthMask.at<uchar>(i,j) = (int) (pow(distance/ (max(depthMask.rows, depthMask.cols)/30),2));
+            if (depth > maxdepth) {
+                maxdepth = depth;
+            }
         }
     }
     
-    prevMask.release();
-    
-    return depthMask;
+    return maxdepth;
 }
 
 // Print float matricies nicely

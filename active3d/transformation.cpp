@@ -16,6 +16,16 @@
 #include <stdlib.h>
 #include <math.h>
 
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
+#include <GL/glut.h>
+#include <GL/glu.h>
+#include <GL/gl.h>
+#endif
+
 #define PI 3.14159265
 
 using namespace cv;
@@ -116,4 +126,30 @@ Vec3f reconstruct3D(Vec3f point, int width, int height, int eye) {
     point = scale(point, 1+scaleFactor, width, height, point[2]) - translationVector;
     
     return point;
+}
+
+// Converts point into GL_POINT
+void drawPoint(Vec3b point, Mat depthMask, Mat fgMask, int eye) {
+    float depth; // normalised depth
+    //float cameraHeight = 1.6;
+    int rows = fgMask.rows;
+    int cols = fgMask.cols;
+    
+    glColor3f(point[2]/255.0, point[1]/255.0, point[0]/255.0);
+    
+    // init glVertex, x -> horiz, y -> height, z -> depth
+    depth = depthMask.at<float>(point[0], point[1]);
+    
+    // 3D reconstruction
+    // three points make a triangle
+    Vec3f vertex;
+    vertex[0] = (float) point[0];
+    vertex[1] = (float) point[1];
+    vertex[2] = (float) depth;
+    
+    // reconstruct 3D using transformation.cpp method
+    point = reconstruct3D(vertex, cols, rows, eye);
+    
+    // OpenGl stores pixels upside down to OpenCV
+    glVertex3f( (GLfloat) vertex[0], (GLfloat) rows - vertex[1], (GLfloat) vertex[2] );
 }
