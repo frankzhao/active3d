@@ -46,6 +46,10 @@
 		01DD1FC318B9FC5200D12CF0 /* active3d */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = active3d; sourceTree = BUILT_PRODUCTS_DIR; };
 		01DD1FE018BA1ADF00D12CF0 /* libopencv_core.2.4.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_core.2.4.8.dylib; path = ../../../../../opt/local/lib/libopencv_core.2.4.8.dylib; sourceTree = "<group>"; };
 		01DD1FE618BA1BED00D12CF0 /* libopencv_imgproc.2.4.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libopencv_imgproc.2.4.8.dylib; path = ../../../../../opt/local/lib/libopencv_imgproc.2.4.8.dylib; sourceTree = "<group>"; };
+		01ED2C851931E1D400FAD7CC /* ball.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ball.jpg; sourceTree = "<group>"; };
+		01ED2C861931E1D400FAD7CC /* cat.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = cat.jpg; sourceTree = "<group>"; };
+		01ED2C871931E1D400FAD7CC /* coffee.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = coffee.jpg; sourceTree = "<group>"; };
+		01ED2C881931E1D400FAD7CC /* dog.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = dog.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +73,7 @@
 		0174FBD01913BB5900484DDA /* active3d */ = {
 			isa = PBXGroup;
 			children = (
+				01ED2C841931E1C700FAD7CC /* img */,
 				0174FBD11913BB5900484DDA /* active3d.cpp */,
 				0174FBD21913BB5900484DDA /* active3d.1 */,
 				0174FBD31913BB5900484DDA /* utility.cpp */,
@@ -100,6 +105,17 @@
 				01DD1FC318B9FC5200D12CF0 /* active3d */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		01ED2C841931E1C700FAD7CC /* img */ = {
+			isa = PBXGroup;
+			children = (
+				01ED2C851931E1D400FAD7CC /* ball.jpg */,
+				01ED2C861931E1D400FAD7CC /* cat.jpg */,
+				01ED2C871931E1D400FAD7CC /* coffee.jpg */,
+				01ED2C881931E1D400FAD7CC /* dog.jpg */,
+			);
+			name = img;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

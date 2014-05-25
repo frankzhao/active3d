@@ -258,7 +258,7 @@ static void mouseRectangleEvent(int event, int x, int y, int, void*) {
  *********************/
 
 int initialize_image() {
-    img = imread("/Users/frank/dev/COMP4550/coffee.jpg");
+    img = imread("img/ball.jpg");
     
     if (img.data == 0) {
         return -1;
@@ -330,7 +330,7 @@ void renderBackground(float r_x, float r_y, float r_z, int eye) {
             Vec3f point;
             point[0] = (float) j;
             point[1] = (float) i;
-            point[2] = (float) -20; // TODO get max depth of object
+            point[2] = (float) -maxfgdepth;
             
             // reconstruct 3D using transformation.cpp method
             //point = reconstruct3D(point, img.cols, img.rows, eye);

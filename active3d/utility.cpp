@@ -107,12 +107,14 @@ float depthMap(Mat mask, Mat dest, const string &winname, int iterations) {
     
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
-            distance = sqrt( std::pow((mask.cols/2 - j), 2.0f) + std::pow((mask.rows/2 - i), 2.0f));
-            depth = (pow(distance/ (max(mask.rows, mask.cols)/30),2));
-            dest.at<float>(i,j) = depth;
-            
-            if (depth > maxdepth) {
-                maxdepth = depth;
+            if (mask.at<uchar>(i,j) == GC_FGD) {
+                distance = sqrt( std::pow((mask.cols/2 - j), 2.0f) + std::pow((mask.rows/2 - i), 2.0f));
+                depth = (std::pow(distance/5,2));
+                dest.at<float>(i,j) = depth;
+                
+                if (depth > maxdepth) {
+                    maxdepth = depth;
+                }
             }
         }
     }
@@ -125,7 +127,7 @@ void printMatrix(Mat m) {
     int i, j;
     for (i=0; i<m.rows; i++) {
         for (j=0; j<m.cols; j++) {
-            printf("%f ", m.at<float>(i,j));
+            cout << m.at<float>(i,j) << " " << endl;
         }
         cout << endl;
     }
