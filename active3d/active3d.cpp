@@ -258,7 +258,7 @@ static void mouseRectangleEvent(int event, int x, int y, int, void*) {
  *********************/
 
 int initialize_image() {
-    img = imread("img/ball.jpg");
+    img = imread("/Users/frank/dev/COMP4550/ball.jpg");
     
     if (img.data == 0) {
         return -1;
