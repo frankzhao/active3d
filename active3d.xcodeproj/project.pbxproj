@@ -266,6 +266,7 @@
 					/opt/local/lib,
 					"$(PROJECT_DIR)",
 				);
+				MACH_O_TYPE = mh_execute;
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = active3d;
@@ -293,6 +294,7 @@
 					/opt/local/lib,
 					"$(PROJECT_DIR)",
 				);
+				MACH_O_TYPE = mh_execute;
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = active3d;
