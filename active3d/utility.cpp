@@ -110,7 +110,7 @@ float depthMap(Mat mask, Mat dest, const string &winname, int iterations) {
             depth = rows - (std::pow(distance/10,2));
             dest.at<float>(i,j) = depth;
             
-            if (depth > mindepth && mask.at<uchar>(i,j) == GC_FGD) {
+            if (depth < mindepth && mask.at<uchar>(i,j) == GC_FGD) {
                 mindepth = depth;
             }
         }
