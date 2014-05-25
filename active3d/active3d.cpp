@@ -317,7 +317,7 @@ void renderBackground(float r_x, float r_y, float r_z, int eye) {
     
     int rows = img.rows, cols = img.cols;
     Mat bg_inpainted = img.clone();
-    inpaint(img, fgMask, bg_inpainted, 5.0, INPAINT_NS);
+    inpaint(img, fgMask, bg_inpainted, 20.0, INPAINT_TELEA);
     
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
