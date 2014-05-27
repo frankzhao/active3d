@@ -257,8 +257,8 @@ static void mouseRectangleEvent(int event, int x, int y, int, void*) {
  *       Image       *
  *********************/
 
-int initialize_image() {
-    img = imread("img/ball.jpg");
+int initialize_image(const char *file) {
+    img = imread(file);
     
     if (img.data == 0) {
         return -1;
@@ -443,10 +443,16 @@ int renderGL (int argc, char **argv){
 
 int main(int argc, char * argv[]) {
 
+    if (argc != 2) {
+        cerr << "Usage: active3d [file]" << endl;
+        exit(1);
+    }
+    
     // initialise GLUT window
     glutInit (&argc, argv);
-
-    int retval = initialize_image();
+    
+    cout << "Opening image: " << argv[1] << endl;
+    int retval = initialize_image(argv[1]);
     
     if (retval == -1) {
         cerr << "Image not found!" << endl;
@@ -483,7 +489,7 @@ int main(int argc, char * argv[]) {
             
         } else if (key == 114) { //restart if 'r' is pressed
             release_memory();
-            initialize_image();
+            initialize_image(argv[1]);
         }
     }
     
