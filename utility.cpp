@@ -107,14 +107,12 @@ float depthMap(Mat mask, Mat dest, const string &winname, int iterations) {
     
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
-            if (mask.at<uchar>(i,j) == GC_FGD) {
-                distance = sqrt( std::pow((mask.cols/2 - j), 2.0f) + std::pow((mask.rows/2 - i), 2.0f));
-                depth = (std::pow(distance/5,2));
-                dest.at<float>(i,j) = depth;
-                
-                if (depth > maxdepth) {
-                    maxdepth = depth;
-                }
+            distance = sqrt( std::pow((mask.cols/2 - j), 2.0f) + std::pow((mask.rows/2 - i), 2.0f));
+            depth = rows - (std::pow(distance/10,2));
+            dest.at<float>(i,j) = depth;
+            
+            if (depth < maxdepth && mask.at<uchar>(i,j) == GC_FGD) {
+                maxdepth = depth;
             }
         }
     }
