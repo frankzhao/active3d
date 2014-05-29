@@ -1,1 +1,1 @@
-clang++ -L/opt/local/lib -F/opt/local/Library/Frameworks -stdlib=libc++ -lopencv_highgui.2.4.8 -framework Cocoa -framework GLUT -framework OpenGL -lopencv_imgproc.2.4.8 -lopencv_core.2.4.8 -lopencv_photo.2.4.8 -I/opt/local/include active3d.cpp utility.cpp transformation.cpp -o active3d1
+clang++ -L/opt/local/lib -F/opt/local/Library/Frameworks -stdlib=libc++ -lopencv_highgui.2.4.8 -framework Cocoa -framework GLUT -framework OpenGL -lopencv_imgproc.2.4.8 -lopencv_core.2.4.8 -lopencv_photo.2.4.8 -I/opt/local/include active3d.cpp utility.cpp transformation.cpp -o active3d
