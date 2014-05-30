@@ -3,7 +3,7 @@ Active3D Desktop Pipeline
 
 Built with OpenCV and GLUT. Takes an input image and creates a stereogram after reconstructing the foreground in 3D.
 
-Image -> Segment foreground/background -> 3D reconstruction -> Stereo view -> Active 3D
+Image -> Segment foreground/background -> Depth function -> 3D reconstruction -> Stereo pair
 
 Usage
 ===
