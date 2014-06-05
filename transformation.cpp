@@ -88,7 +88,6 @@ Vec3f reconstruct3D(Vec3f point, int width, int height, int eye) {
     translationVector[0] = 0;
     translationVector[1] = camera_height;
     translationVector[2] = dist;
-    float ipd = 200.0; // pupil distance
     
     // Scale and Translate
     point = scale(point, scaleFactor, width, height, point[2]) + translationVector;
@@ -101,26 +100,12 @@ Vec3f reconstruct3D(Vec3f point, int width, int height, int eye) {
     constructInverseRotationMatrix(10, rotationMatrix);  // TODO calculate beta
     vec = rotationMatrix * vec;
     
-    // generate stereo pair
-    Mat view;
-    if (eye == 0) {
-        Vec3f stereoLeftVector;
-        stereoLeftVector[0] = -ipd/2; stereoLeftVector[1] = 0, stereoLeftVector[2] = 0;
-        Mat stereoLeftTranslation  = Mat(3, 1, CV_32FC1, &stereoLeftVector);
-        view  = vec + stereoLeftTranslation;
-    } else if (eye == 1) {
-        Vec3f stereoRightVector;
-        stereoRightVector[0] = ipd/2; stereoRightVector[1] = 0, stereoRightVector[2] = 0;
-        Mat stereoRightTranslation = Mat(3, 1, CV_32FC1, &stereoRightVector);
-        view = vec + stereoRightTranslation;
-    }
-    
     // Inverse rotate
     constructRotationMatrix(10, rotationMatrix);
-    view = rotationMatrix * view;
-    point[0] = view.at<float>(0,0);
-    point[1] = view.at<float>(1,0);
-    point[2] = view.at<float>(2,0);
+    vec = rotationMatrix * vec;
+    point[0] = vec.at<float>(0,0);
+    point[1] = vec.at<float>(1,0);
+    point[2] = vec.at<float>(2,0);
     
     // Translate and scale back
     point = scale(point, 1+scaleFactor, width, height, point[2]) - translationVector;
@@ -130,6 +115,7 @@ Vec3f reconstruct3D(Vec3f point, int width, int height, int eye) {
 
 // Converts point into GL_POINT
 void drawPoint(Vec3b point, int x, int y, Mat depthMask, Mat fgMask, int eye) {
+    float ipd = 30; // stereo distance
     float depth; // normalised depth
     //float cameraHeight = 1.6;
     int rows = fgMask.rows;

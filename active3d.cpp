@@ -369,7 +369,7 @@ void rotate (int key, int x, int y) {
 }
 
 /* openGL */
-//this is the "display" void, we will use it to clear the screen:
+float ipd = 30; // stereo view perspective distance
 void display () {
     // Clear the colour and depth buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -377,13 +377,14 @@ void display () {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); // Reset transformations
     
-    gluLookAt(translation_x, translation_y, worldDepthMax/2, 0, 0, 0, 0, 1, 0); // TODO max depth of object
+    //gluLookAt(translation_x, translation_y, worldDepthMax/2, 0, 0, 0, 0, 1, 0); // TODO max depth of object
     
     //glRotatef(rotation_y, 1.0, 0.0, 0.0);
     //glRotatef(rotation_x, 0.0, 1.0, 0.0);
     
     // left eye
     //gluLookAt(img.cols/2, img.rows/2, worldDepthMax, img.cols/2, img.rows/2, 0, 0, 1, 0);
+    gluLookAt(translation_x - (ipd/2), translation_y, worldDepthMax/2, 0, 0, 0, 0, 1, 0);
     glViewport(0.0, 0.0, img.cols, img.rows);
     glBegin(GL_TRIANGLES);
     renderForeground(0,0,0,LEFT_EYE);
@@ -394,6 +395,7 @@ void display () {
     glEnd();
     
     // right eye
+    gluLookAt(translation_x + (ipd/2), translation_y, worldDepthMax/2, 0, 0, 0, 0, 1, 0);
     glViewport(img.cols, 0.0, img.cols, img.rows);
     glBegin(GL_TRIANGLES);
     renderForeground(0,0,0,RIGHT_EYE);
@@ -410,7 +412,6 @@ void display () {
 int renderGL (int argc, char **argv){
     assert( (worldDepthMax - worldDepthMin) > 0 );
     
-    //glutInitDisplayMode ( GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
     glutInitDisplayMode ( GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
     
     glutInitWindowPosition(400,400);
